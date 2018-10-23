@@ -3,6 +3,7 @@ package main
 import (
 	"huru/models/nearby"
 	"huru/models/person"
+	"huru/models/share"
 	"log"
 	"net/http"
 
@@ -32,6 +33,12 @@ func main() {
 	router.HandleFunc("/nearby/{id}", nearby.GetOne).Methods("GET")
 	router.HandleFunc("/nearby/{id}", nearby.Create).Methods("POST")
 	router.HandleFunc("/nearby/{id}", nearby.Delete).Methods("DELETE")
+
+	// share
+	router.HandleFunc("/share", share.GetMany).Methods("GET")
+	router.HandleFunc("/share/{id}", share.GetOne).Methods("GET")
+	router.HandleFunc("/share/{id}", share.Create).Methods("POST")
+	router.HandleFunc("/share/{id}", share.Delete).Methods("DELETE")
 
 	log.Fatal(http.ListenAndServe(":8000", router))
 

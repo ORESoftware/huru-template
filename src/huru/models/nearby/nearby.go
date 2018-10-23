@@ -18,6 +18,7 @@ type Nearby struct {
 }
 
 var schema = `
+DROP TABLE nearby;
 CREATE TABLE nearby (
 	id SERIAL,
     me integer,
@@ -25,14 +26,32 @@ CREATE TABLE nearby (
 	contactTime Date
 );
 `
+var nearby []Nearby
 
 // CreateTable whatever
 func CreateTable() {
+
+	// s1 := Nearby{id: 1, me: 1, you: 2, contactTime: strconv.Itoa(time.Now())}
+
+	s1 := Nearby{id: 1, me: 1, you: 2, contactTime: strconv.Itoa(222)}
+	nearby = append(nearby, s1)
+
+	s2 := Nearby{id: 2, me: 2, you: 1, contactTime: strconv.Itoa(223)}
+	nearby = append(nearby, s2)
+
 	db := dbs.GetDatabaseConnection()
 	db.Exec(schema)
-}
 
-var nearby []Nearby
+	tx := db.MustBegin()
+
+	// tx.MustExec("INSERT INTO share (me, you, sharePhone) VALUES ($1, $2, $3)", "Jason", "Moiron", "jmoiron@jmoiron.net")
+	// Named queries can use structs, so if you have an existing struct (i.e. person := &Person{}) that you have populated, you can pass it in as &person
+
+	tx.NamedExec("INSERT INTO nearby (me, you, contactTime) VALUES (:me, :you, :contactTime)", s1)
+	tx.NamedExec("INSERT INTO nearby (me, you, contactTime) VALUES (:me, :you, :contactTime)", s2)
+	tx.Commit()
+
+}
 
 // GetMany Display all from the people var
 func GetMany(w http.ResponseWriter, r *http.Request) {

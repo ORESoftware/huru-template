@@ -14,9 +14,11 @@ type Person struct {
 	id        int    `json:"id,omitempty"`
 	firstname string `json:"firstname,omitempty"`
 	lastname  string `json:"lastname,omitempty"`
+	email     string `json:"email,omitempty"`
 }
 
 var schema = `
+DROP TABLE person;
 CREATE TABLE person (
 	id SERIAL,
     firstname text,
@@ -30,10 +32,22 @@ var people []Person
 // CreateTable whatever
 func CreateTable() {
 
-	people = append(people, Person{id: 1, firstname: "John", lastname: "Doe"})
-	people = append(people, Person{id: 2, firstname: "Koko", lastname: "Doe"})
+	s1 := Person{id: 1, firstname: "Alex", lastname: "Chaz", email: "alex@example.com"}
+	people = append(people, s1)
+	s2 := Person{id: 2, firstname: "Jason", lastname: "Statham", email: "jason@example.com"}
+	people = append(people, s2)
+
 	db := dbs.GetDatabaseConnection()
 	db.Exec(schema)
+
+	tx := db.MustBegin()
+
+	// tx.MustExec("INSERT INTO share (me, you, sharePhone) VALUES ($1, $2, $3)", "Jason", "Moiron", "jmoiron@jmoiron.net")
+	// Named queries can use structs, so if you have an existing struct (i.e. person := &Person{}) that you have populated, you can pass it in as &person
+
+	tx.NamedExec("INSERT INTO person (firstname, lastname, email) VALUES (:firstname, :lastname, :email)", s1)
+	tx.NamedExec("INSERT INTO person (firstname, lastname, email) VALUES (:firstname, :lastname, :email)", s2)
+	tx.Commit()
 }
 
 // GetMany Display all from the people var
