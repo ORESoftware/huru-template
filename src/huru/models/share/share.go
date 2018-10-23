@@ -11,11 +11,11 @@ import (
 
 // Share The person Type (more like an object)
 type Share struct {
-	id         int  `json:"id,omitempty"`
-	me         int  `json:"me,omitempty"`
-	you        int  `json:"you,omitempty"`
-	shareEmail bool `json:"shareEmail,omitempty"`
-	sharePhone bool `json:"sharePhone,omitempty"`
+	ID         int  `json:"id,omitempty"`
+	Me         int  `json:"me,omitempty"`
+	You        int  `json:"you,omitempty"`
+	ShareEmail bool `json:"shareEmail,omitempty"`
+	SharePhone bool `json:"sharePhone,omitempty"`
 }
 
 var schema = `
@@ -34,9 +34,9 @@ var shares []Share
 // CreateTable whatever
 func CreateTable() {
 
-	s1 := Share{id: 1, me: 1, you: 2, sharePhone: true, shareEmail: false}
+	s1 := Share{ID: 1, Me: 1, You: 2, SharePhone: true, ShareEmail: false}
 	shares = append(shares, s1)
-	s2 := Share{id: 2, me: 2, you: 1, sharePhone: false, shareEmail: true}
+	s2 := Share{ID: 2, Me: 2, You: 1, SharePhone: false, ShareEmail: true}
 	shares = append(shares, s2)
 
 	db := dbs.GetDatabaseConnection()
@@ -62,7 +62,7 @@ func GetMany(w http.ResponseWriter, r *http.Request) {
 func GetOne(w http.ResponseWriter, r *http.Request) {
 	params := mux.Vars(r)
 	for _, item := range shares {
-		if strconv.Itoa(item.id) == params["id"] {
+		if strconv.Itoa(item.ID) == params["id"] {
 			json.NewEncoder(w).Encode(item)
 			return
 		}
@@ -84,7 +84,7 @@ func Create(w http.ResponseWriter, r *http.Request) {
 func Delete(w http.ResponseWriter, r *http.Request) {
 	params := mux.Vars(r)
 	for index, item := range shares {
-		if strconv.Itoa(item.id) == params["id"] {
+		if strconv.Itoa(item.ID) == params["id"] {
 			shares = append(shares[:index], shares[index+1:]...)
 			break
 		}

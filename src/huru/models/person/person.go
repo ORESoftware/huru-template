@@ -11,10 +11,10 @@ import (
 
 // Person The person Type (more like an object)
 type Person struct {
-	id        int    `json:"id,omitempty"`
-	firstname string `json:"firstname,omitempty"`
-	lastname  string `json:"lastname,omitempty"`
-	email     string `json:"email,omitempty"`
+	ID        int    `json:"id,omitempty"`
+	Firstname string `json:"firstname,omitempty"`
+	Lastname  string `json:"lastname,omitempty"`
+	Email     string `json:"email,omitempty"`
 }
 
 var schema = `
@@ -32,9 +32,9 @@ var people []Person
 // CreateTable whatever
 func CreateTable() {
 
-	s1 := Person{id: 1, firstname: "Alex", lastname: "Chaz", email: "alex@example.com"}
+	s1 := Person{ID: 1, Firstname: "Alex", Lastname: "Chaz", Email: "alex@example.com"}
 	people = append(people, s1)
-	s2 := Person{id: 2, firstname: "Jason", lastname: "Statham", email: "jason@example.com"}
+	s2 := Person{ID: 2, Firstname: "Jason", Lastname: "Statham", Email: "jason@example.com"}
 	people = append(people, s2)
 
 	db := dbs.GetDatabaseConnection()
@@ -42,11 +42,13 @@ func CreateTable() {
 
 	tx := db.MustBegin()
 
-	// tx.MustExec("INSERT INTO share (me, you, sharePhone) VALUES ($1, $2, $3)", "Jason", "Moiron", "jmoiron@jmoiron.net")
+	tx.MustExec("INSERT INTO person (firstname, lastname, email) VALUES ($1, $2, $3)", s1.Firstname, s1.Lastname, s1.Email)
+	tx.MustExec("INSERT INTO person (firstname, lastname, email) VALUES ($1, $2, $3)", s2.Firstname, s2.Lastname, s2.Email)
+
 	// Named queries can use structs, so if you have an existing struct (i.e. person := &Person{}) that you have populated, you can pass it in as &person
 
-	tx.NamedExec("INSERT INTO person (firstname, lastname, email) VALUES (:firstname, :lastname, :email)", s1)
-	tx.NamedExec("INSERT INTO person (firstname, lastname, email) VALUES (:firstname, :lastname, :email)", s2)
+	// tx.NamedExec("INSERT INTO person (firstname, lastname, email) VALUES (:Firstname, :Lastname, :Email)", s1)
+	// tx.NamedExec("INSERT INTO person (firstname, lastname, email) VALUES (:Firstname, :Lastname, :Email)", s2)
 	tx.Commit()
 }
 
@@ -59,7 +61,7 @@ func GetMany(w http.ResponseWriter, r *http.Request) {
 func GetOne(w http.ResponseWriter, r *http.Request) {
 	params := mux.Vars(r)
 	for _, item := range people {
-		if strconv.Itoa(item.id) == params["id"] {
+		if strconv.Itoa(item.ID) == params["id"] {
 			json.NewEncoder(w).Encode(item)
 			return
 		}
@@ -81,7 +83,7 @@ func Create(w http.ResponseWriter, r *http.Request) {
 func Delete(w http.ResponseWriter, r *http.Request) {
 	params := mux.Vars(r)
 	for index, item := range people {
-		if strconv.Itoa(item.id) == params["id"] {
+		if strconv.Itoa(item.ID) == params["id"] {
 			people = append(people[:index], people[index+1:]...)
 			break
 		}

@@ -11,10 +11,10 @@ import (
 
 // Nearby whatever
 type Nearby struct {
-	id          int    `json:"id,omitempty"`
-	me          int    `json:"me,omitempty"`
-	you         int    `json:"you,omitempty"`
-	contactTime string `json:"contactTime,omitempty"`
+	ID          int    `json:"id,omitempty"`
+	Me          int    `json:"me,omitempty"`
+	You         int    `json:"you,omitempty"`
+	ContactTime string `json:"contactTime,omitempty"`
 }
 
 var schema = `
@@ -23,7 +23,7 @@ CREATE TABLE nearby (
 	id SERIAL,
     me integer,
 	you integer,
-	contactTime Date
+	contactTime text
 );
 `
 var nearby []Nearby
@@ -33,10 +33,10 @@ func CreateTable() {
 
 	// s1 := Nearby{id: 1, me: 1, you: 2, contactTime: strconv.Itoa(time.Now())}
 
-	s1 := Nearby{id: 1, me: 1, you: 2, contactTime: strconv.Itoa(222)}
+	s1 := Nearby{ID: 1, Me: 1, You: 2, ContactTime: strconv.Itoa(222)}
 	nearby = append(nearby, s1)
 
-	s2 := Nearby{id: 2, me: 2, you: 1, contactTime: strconv.Itoa(223)}
+	s2 := Nearby{ID: 2, Me: 2, You: 1, ContactTime: strconv.Itoa(223)}
 	nearby = append(nearby, s2)
 
 	db := dbs.GetDatabaseConnection()
@@ -44,11 +44,13 @@ func CreateTable() {
 
 	tx := db.MustBegin()
 
-	// tx.MustExec("INSERT INTO share (me, you, sharePhone) VALUES ($1, $2, $3)", "Jason", "Moiron", "jmoiron@jmoiron.net")
+	tx.MustExec("INSERT INTO nearby (me, you, contactTime) VALUES ($1, $2, $3)", s1.Me, s1.You, s1.ContactTime)
+	tx.MustExec("INSERT INTO nearby (me, you, contactTime) VALUES ($1, $2, $3)", s2.Me, s2.You, s2.ContactTime)
+
 	// Named queries can use structs, so if you have an existing struct (i.e. person := &Person{}) that you have populated, you can pass it in as &person
 
-	tx.NamedExec("INSERT INTO nearby (me, you, contactTime) VALUES (:me, :you, :contactTime)", s1)
-	tx.NamedExec("INSERT INTO nearby (me, you, contactTime) VALUES (:me, :you, :contactTime)", s2)
+	// tx.NamedExec("INSERT INTO nearby (me, you, contactTime) VALUES (:me, :you, :contactTime)", s1)
+	// tx.NamedExec("INSERT INTO nearby (me, you, contactTime) VALUES (:me, :you, :contactTime)", s2)
 	tx.Commit()
 
 }
@@ -62,7 +64,7 @@ func GetMany(w http.ResponseWriter, r *http.Request) {
 func GetOne(w http.ResponseWriter, r *http.Request) {
 	params := mux.Vars(r)
 	for _, item := range nearby {
-		if strconv.Itoa(item.id) == params["id"] {
+		if strconv.Itoa(item.ID) == params["id"] {
 			json.NewEncoder(w).Encode(item)
 			return
 		}
@@ -84,7 +86,7 @@ func Create(w http.ResponseWriter, r *http.Request) {
 func Delete(w http.ResponseWriter, r *http.Request) {
 	params := mux.Vars(r)
 	for index, item := range nearby {
-		if strconv.Itoa(item.id) == params["id"] {
+		if strconv.Itoa(item.ID) == params["id"] {
 			nearby = append(nearby[:index], nearby[index+1:]...)
 			break
 		}
