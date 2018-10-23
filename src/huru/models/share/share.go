@@ -1,26 +1,25 @@
-package person
+package share
 
 import (
 	"encoding/json"
 	"huru/dbs"
 	"net/http"
-	"strconv"
 
 	"github.com/gorilla/mux"
 )
 
 // Person The person Type (more like an object)
 type Person struct {
-	id        int    `json:"id,omitempty"`
-	firstname string `json:"firstname,omitempty"`
-	lastname  string `json:"lastname,omitempty"`
+	ID        string `json:"id,omitempty"`
+	Firstname string `json:"firstname,omitempty"`
+	Lastname  string `json:"lastname,omitempty"`
 }
 
 var schema = `
-CREATE TABLE person (
+CREATE TABLE share (
 	id SERIAL,
-    firstname text,
-    lastname text,
+    first_name text,
+    last_name text,
     email text
 );
 `
@@ -30,8 +29,9 @@ var people []Person
 // CreateTable whatever
 func CreateTable() {
 
-	people = append(people, Person{id: 1, firstname: "John", lastname: "Doe"})
-	people = append(people, Person{id: 2, firstname: "Koko", lastname: "Doe"})
+	people = append(people, Person{ID: "1", Firstname: "John", Lastname: "Doe"})
+	people = append(people, Person{ID: "2", Firstname: "Koko", Lastname: "Doe"})
+
 	db := dbs.GetDatabaseConnection()
 	db.Exec(schema)
 }
@@ -45,7 +45,7 @@ func GetMany(w http.ResponseWriter, r *http.Request) {
 func GetOne(w http.ResponseWriter, r *http.Request) {
 	params := mux.Vars(r)
 	for _, item := range people {
-		if strconv.Itoa(item.id) == params["id"] {
+		if item.ID == params["id"] {
 			json.NewEncoder(w).Encode(item)
 			return
 		}
@@ -55,10 +55,10 @@ func GetOne(w http.ResponseWriter, r *http.Request) {
 
 // Create create a new item
 func Create(w http.ResponseWriter, r *http.Request) {
-	// params := mux.Vars(r)
+	params := mux.Vars(r)
 	var person Person
 	json.NewDecoder(r.Body).Decode(&person)
-	// person.ID = params["id"]
+	person.ID = params["id"]
 	people = append(people, person)
 	json.NewEncoder(w).Encode(people)
 }
@@ -67,7 +67,7 @@ func Create(w http.ResponseWriter, r *http.Request) {
 func Delete(w http.ResponseWriter, r *http.Request) {
 	params := mux.Vars(r)
 	for index, item := range people {
-		if strconv.Itoa(item.id) == params["id"] {
+		if item.ID == params["id"] {
 			people = append(people[:index], people[index+1:]...)
 			break
 		}

@@ -14,12 +14,25 @@ var once sync.Once
 func GetDatabaseConnection() *sqlx.DB {
 
 	once.Do(func() {
-		db, err := sqlx.Connect("postgres", "user=tom dbname=jerry password=myPassword sslmode=disable")
+		var err error
+		db, err = sqlx.Connect("postgres", "user=tom dbname=jerry password=myPassword sslmode=disable")
 		if err != nil {
 			log.Fatalln(err)
 		}
-		log.Print(db)
 	})
 
 	return db
 }
+
+// func GetDatabaseConnection() *sqlx.DB {
+
+// 	if db == nil {
+// 		var err error
+// 		db, err = sqlx.Connect("postgres", "user=tom dbname=jerry password=myPassword sslmode=disable")
+// 		if err != nil {
+// 			log.Fatalln(err)
+// 		}
+// 	}
+
+// 	return db
+// }

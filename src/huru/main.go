@@ -1,8 +1,8 @@
 package main
 
 import (
+	"huru/models/nearby"
 	"huru/models/person"
-	"huru/zoom"
 	"log"
 	"net/http"
 
@@ -15,18 +15,24 @@ import (
 // main function to boot up everything
 func main() {
 
-	XX()
-	zoom.Moo()
-
 	// db := dbs.GetDatabaseConnection()
 
+	CreateHuruTables()
+
 	router := mux.NewRouter()
-	// people = append(people, Person{ID: "1", Firstname: "John", Lastname: "Doe", Address: &Address{City: "City X", State: "State X"}})
-	// people = append(people, Person{ID: "2", Firstname: "Koko", Lastname: "Doe", Address: &Address{City: "City Z", State: "State Y"}})
+
+	// people
 	router.HandleFunc("/people", person.GetMany).Methods("GET")
 	router.HandleFunc("/people/{id}", person.GetOne).Methods("GET")
 	router.HandleFunc("/people/{id}", person.Create).Methods("POST")
 	router.HandleFunc("/people/{id}", person.Delete).Methods("DELETE")
+
+	// nearby
+	router.HandleFunc("/nearby", nearby.GetMany).Methods("GET")
+	router.HandleFunc("/nearby/{id}", nearby.GetOne).Methods("GET")
+	router.HandleFunc("/nearby/{id}", nearby.Create).Methods("POST")
+	router.HandleFunc("/nearby/{id}", nearby.Delete).Methods("DELETE")
+
 	log.Fatal(http.ListenAndServe(":8000", router))
 
 }
