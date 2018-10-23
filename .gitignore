@@ -1,5 +1,5 @@
 .vscode
 bin
 pkg
-src
+src/*
 !src/huru
