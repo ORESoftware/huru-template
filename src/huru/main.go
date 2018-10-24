@@ -7,21 +7,13 @@ import (
 	"huru/models/share"
 	"log"
 	"net/http"
+	"os"
 
 	"github.com/gorilla/mux"
 	_ "github.com/lib/pq"
 )
 
 // https://www.cyberciti.biz/faq/howto-add-postgresql-user-account/
-
-// Logging is whatevs
-// func Logging(h http.Handler) http.Handler {
-// 	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
-// 		glog.Info("before")
-// 		defer glog.Info("after")
-// 		h.ServeHTTP(w, r)
-// 	})
-// }
 
 func loggingMiddleware(next http.Handler) http.Handler {
 	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
@@ -32,24 +24,25 @@ func loggingMiddleware(next http.Handler) http.Handler {
 	})
 }
 
+func createCollections() {
+	person.Init()
+	share.Init()
+	nearby.Init()
+}
+
 // main function to boot up everything
 func main() {
 
 	// db := dbs.GetDatabaseConnection()
 
-	migrations.CreateHuruTables()
+	createCollections()
+
+	if os.Getenv("huru_env") == "db" {
+		migrations.CreateHuruTables()
+	}
 
 	router := mux.NewRouter()
-
 	router.Use(loggingMiddleware)
-
-	// mux.NewRouter().PathPrefix("/").HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
-	// 	glog.Info("before")
-	// })
-
-	// router.PathPrefix("/").HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
-	// 	// glog.Info("before")
-	// })
 
 	// people
 	router.HandleFunc("/people", person.GetMany).Methods("GET")

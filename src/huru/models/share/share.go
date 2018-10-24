@@ -3,50 +3,62 @@ package share
 import (
 	"encoding/json"
 	"huru/dbs"
+	"io"
 	"net/http"
 	"strconv"
+	"sync"
 
 	"github.com/gorilla/mux"
 )
 
 // Share The person Type (more like an object)
 type Share struct {
-	ID         int  `json:"id,omitempty"`
-	Me         int  `json:"me,omitempty"`
-	You        int  `json:"you,omitempty"`
-	ShareEmail bool `json:"shareEmail,omitempty"`
-	SharePhone bool `json:"sharePhone,omitempty"`
+	ID         int    `json:"id"`
+	Me         int    `json:"me"`
+	You        int    `json:"you"`
+	FieldName  string `json:"fieldName"`
+	FieldValue bool   `json:"fieldValue"`
 }
 
-var schema = `
+const schema = `
 DROP TABLE share;
 CREATE TABLE share (
 	id SERIAL,
     me int,
     you int,
-	shareEmail boolean,
-	sharePhone boolean
+	fieldName text,
+	fieldValue boolean
 );
 `
 
-var shares []Share
+var (
+	mtx    sync.Mutex
+	shares map[string]Share
+)
+
+// Init create collection
+func Init() {
+	shares = make(map[string]Share)
+	mtx.Lock()
+	shares["1"] = Share{ID: 1, Me: 1, You: 2, FieldName: "sharePhone", FieldValue: false}
+	shares["2"] = Share{ID: 2, Me: 2, You: 1, FieldName: "shareEmail", FieldValue: true}
+	shares["3"] = Share{ID: 3, Me: 1, You: 2, FieldName: "sharePhone", FieldValue: true}
+	shares["4"] = Share{ID: 4, Me: 2, You: 1, FieldName: "shareEmail", FieldValue: false}
+	mtx.Unlock()
+}
 
 // CreateTable whatever
 func CreateTable() {
 
-	s1 := Share{ID: 1, Me: 1, You: 2, SharePhone: true, ShareEmail: false}
-	shares = append(shares, s1)
-	s2 := Share{ID: 2, Me: 2, You: 1, SharePhone: false, ShareEmail: true}
-	shares = append(shares, s2)
+	s1 := shares["1"]
+	s2 := shares["2"]
 
 	db := dbs.GetDatabaseConnection()
 	db.MustExec(schema)
 
 	tx := db.MustBegin()
-
 	// tx.MustExec("INSERT INTO share (me, you, sharePhone) VALUES ($1, $2, $3)", "Jason", "Moiron", "jmoiron@jmoiron.net")
 	// Named queries can use structs, so if you have an existing struct (i.e. person := &Person{}) that you have populated, you can pass it in as &person
-
 	tx.NamedExec("INSERT INTO share (me, you, sharePhone, shareEmail) VALUES (:me, :you, :sharePhone, :shareEmail)", s1)
 	tx.NamedExec("INSERT INTO share (me, you, sharePhone, shareEmail) VALUES (:me, :you, :sharePhone, :shareEmail)", s2)
 	tx.Commit()
@@ -61,33 +73,32 @@ func GetMany(w http.ResponseWriter, r *http.Request) {
 // GetOne Display a single data
 func GetOne(w http.ResponseWriter, r *http.Request) {
 	params := mux.Vars(r)
-	for _, item := range shares {
-		if strconv.Itoa(item.ID) == params["id"] {
-			json.NewEncoder(w).Encode(item)
-			return
-		}
+	mtx.Lock()
+	item, ok := shares[params["id"]]
+	mtx.Unlock()
+	if ok {
+		json.NewEncoder(w).Encode(item)
+	} else {
+		io.WriteString(w, "null")
 	}
-	json.NewEncoder(w).Encode(&Share{})
 }
 
 // Create create a new item
 func Create(w http.ResponseWriter, r *http.Request) {
-	// params := mux.Vars(r)
-	var s Share
-	json.NewDecoder(r.Body).Decode(&s)
-	// person.ID = params["id"]
-	shares = append(shares, s)
-	json.NewEncoder(w).Encode(s)
+	var n Share
+	json.NewDecoder(r.Body).Decode(&n)
+	mtx.Lock()
+	shares[strconv.Itoa(n.ID)] = n
+	mtx.Unlock()
+	json.NewEncoder(w).Encode(&n)
 }
 
 // Delete Delete an item
 func Delete(w http.ResponseWriter, r *http.Request) {
 	params := mux.Vars(r)
-	for index, item := range shares {
-		if strconv.Itoa(item.ID) == params["id"] {
-			shares = append(shares[:index], shares[index+1:]...)
-			break
-		}
-		json.NewEncoder(w).Encode(shares)
-	}
+	mtx.Lock()
+	_, deleted := shares[params["id"]]
+	delete(shares, params["id"])
+	mtx.Unlock()
+	json.NewEncoder(w).Encode(deleted)
 }

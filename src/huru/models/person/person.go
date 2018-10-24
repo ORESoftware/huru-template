@@ -3,8 +3,10 @@ package person
 import (
 	"encoding/json"
 	"huru/dbs"
+	"io"
 	"net/http"
 	"strconv"
+	"sync"
 
 	"github.com/gorilla/mux"
 )
@@ -12,6 +14,9 @@ import (
 // Person The person Type (more like an object)
 type Person struct {
 	ID        int    `json:"id,omitempty"`
+	Handle    string `json:"handle,omitempty"`
+	Work      string `json:"work,omitempty"`
+	Image     string `json:"image,omitempty"`
 	Firstname string `json:"firstname,omitempty"`
 	Lastname  string `json:"lastname,omitempty"`
 	Email     string `json:"email,omitempty"`
@@ -21,26 +26,43 @@ var schema = `
 DROP TABLE person;
 CREATE TABLE person (
 	id SERIAL,
-    firstname text,
+	handle text,
+	firstname text,
     lastname text,
-    email text
+    email text,
+	work text,
+	image text,
+	personalEmail text,
+	businessEmail text,
+	facebook text,
+	instagram text
 );
 `
 
-var people []Person
+var (
+	mtx    sync.Mutex
+	people map[string]Person
+)
+
+// Init create collection
+func Init() {
+	people = make(map[string]Person)
+	mtx.Lock()
+	people["1"] = Person{ID: 1, Firstname: "Alex", Lastname: "Chaz", Email: "alex@example.com"}
+	people["2"] = Person{ID: 2, Firstname: "Jason", Lastname: "Statham", Email: "jason@example.com"}
+	mtx.Unlock()
+}
 
 // CreateTable whatever
 func CreateTable() {
-
-	s1 := Person{ID: 1, Firstname: "Alex", Lastname: "Chaz", Email: "alex@example.com"}
-	people = append(people, s1)
-	s2 := Person{ID: 2, Firstname: "Jason", Lastname: "Statham", Email: "jason@example.com"}
-	people = append(people, s2)
 
 	db := dbs.GetDatabaseConnection()
 	db.Exec(schema)
 
 	tx := db.MustBegin()
+
+	s1 := people["1"]
+	s2 := people["2"]
 
 	tx.MustExec("INSERT INTO person (firstname, lastname, email) VALUES ($1, $2, $3)", s1.Firstname, s1.Lastname, s1.Email)
 	tx.MustExec("INSERT INTO person (firstname, lastname, email) VALUES ($1, $2, $3)", s2.Firstname, s2.Lastname, s2.Email)
@@ -60,33 +82,32 @@ func GetMany(w http.ResponseWriter, r *http.Request) {
 // GetOne Display a single data
 func GetOne(w http.ResponseWriter, r *http.Request) {
 	params := mux.Vars(r)
-	for _, item := range people {
-		if strconv.Itoa(item.ID) == params["id"] {
-			json.NewEncoder(w).Encode(item)
-			return
-		}
+	mtx.Lock()
+	item, ok := people[params["id"]]
+	mtx.Unlock()
+	if ok {
+		json.NewEncoder(w).Encode(item)
+	} else {
+		io.WriteString(w, "null")
 	}
-	json.NewEncoder(w).Encode(&Person{})
 }
 
 // Create create a new item
 func Create(w http.ResponseWriter, r *http.Request) {
-	// params := mux.Vars(r)
-	var person Person
-	json.NewDecoder(r.Body).Decode(&person)
-	// person.ID = params["id"]
-	people = append(people, person)
-	json.NewEncoder(w).Encode(people)
+	var n Person
+	json.NewDecoder(r.Body).Decode(&n)
+	mtx.Lock()
+	people[strconv.Itoa(n.ID)] = n
+	mtx.Unlock()
+	json.NewEncoder(w).Encode(&n)
 }
 
 // Delete Delete an item
 func Delete(w http.ResponseWriter, r *http.Request) {
 	params := mux.Vars(r)
-	for index, item := range people {
-		if strconv.Itoa(item.ID) == params["id"] {
-			people = append(people[:index], people[index+1:]...)
-			break
-		}
-		json.NewEncoder(w).Encode(people)
-	}
+	mtx.Lock()
+	_, isDeletable := people[params["id"]]
+	delete(people, params["id"])
+	mtx.Unlock()
+	json.NewEncoder(w).Encode(isDeletable)
 }
