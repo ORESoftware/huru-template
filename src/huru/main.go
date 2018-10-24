@@ -1,6 +1,7 @@
 package main
 
 import (
+	"huru/migrations"
 	"huru/models/nearby"
 	"huru/models/person"
 	"huru/models/share"
@@ -13,14 +14,42 @@ import (
 
 // https://www.cyberciti.biz/faq/howto-add-postgresql-user-account/
 
+// Logging is whatevs
+// func Logging(h http.Handler) http.Handler {
+// 	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+// 		glog.Info("before")
+// 		defer glog.Info("after")
+// 		h.ServeHTTP(w, r)
+// 	})
+// }
+
+func loggingMiddleware(next http.Handler) http.Handler {
+	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+		// Do stuff here
+		log.Println(r.RequestURI)
+		// Call the next handler, which can be another middleware in the chain, or the final handler.
+		next.ServeHTTP(w, r)
+	})
+}
+
 // main function to boot up everything
 func main() {
 
 	// db := dbs.GetDatabaseConnection()
 
-	CreateHuruTables()
+	migrations.CreateHuruTables()
 
 	router := mux.NewRouter()
+
+	router.Use(loggingMiddleware)
+
+	// mux.NewRouter().PathPrefix("/").HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+	// 	glog.Info("before")
+	// })
+
+	// router.PathPrefix("/").HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+	// 	// glog.Info("before")
+	// })
 
 	// people
 	router.HandleFunc("/people", person.GetMany).Methods("GET")

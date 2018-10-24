@@ -6,3 +6,6 @@ The first is the recipient (target object) of the call.
 The second is the arguments. 
 The third only applies if there are multiple return types. 
 Have no fear that is it. There are more substantial concerns that you should consider:
+
+
+https://blog.golang.org/go-maps-in-action

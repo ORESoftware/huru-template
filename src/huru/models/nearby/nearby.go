@@ -3,8 +3,11 @@ package nearby
 import (
 	"encoding/json"
 	"huru/dbs"
+	"io"
 	"net/http"
+	"reflect"
 	"strconv"
+	"sync"
 
 	"github.com/gorilla/mux"
 )
@@ -26,18 +29,33 @@ CREATE TABLE nearby (
 	contactTime text
 );
 `
-var nearby []Nearby
+
+func getValues(m interface{}) []interface{} {
+	v := reflect.ValueOf(m)
+	result := make([]interface{}, 0, v.Len())
+	for _, k := range v.MapKeys() {
+		result = append(result, v.MapIndex(k).Interface())
+	}
+	return result
+}
+
+var (
+	mtx    sync.Mutex
+	nearby map[string]Nearby
+)
 
 // CreateTable whatever
 func CreateTable() {
 
+	nearby = make(map[string]Nearby)
+
 	// s1 := Nearby{id: 1, me: 1, you: 2, contactTime: strconv.Itoa(time.Now())}
 
 	s1 := Nearby{ID: 1, Me: 1, You: 2, ContactTime: strconv.Itoa(222)}
-	nearby = append(nearby, s1)
+	nearby["1"] = s1
 
 	s2 := Nearby{ID: 2, Me: 2, You: 1, ContactTime: strconv.Itoa(223)}
-	nearby = append(nearby, s2)
+	nearby["2"] = s2
 
 	db := dbs.GetDatabaseConnection()
 	db.Exec(schema)
@@ -57,39 +75,34 @@ func CreateTable() {
 
 // GetMany Display all from the people var
 func GetMany(w http.ResponseWriter, r *http.Request) {
-	json.NewEncoder(w).Encode(nearby)
+	json.NewEncoder(w).Encode(getValues(nearby))
 }
 
 // GetOne Display a single data
 func GetOne(w http.ResponseWriter, r *http.Request) {
 	params := mux.Vars(r)
-	for _, item := range nearby {
-		if strconv.Itoa(item.ID) == params["id"] {
-			json.NewEncoder(w).Encode(item)
-			return
-		}
+	item, ok := nearby[params["id"]]
+	if ok {
+		json.NewEncoder(w).Encode(item)
+	} else {
+		io.WriteString(w, "null")
 	}
-	json.NewEncoder(w).Encode(&Nearby{})
 }
 
 // Create create a new item
 func Create(w http.ResponseWriter, r *http.Request) {
-	// params := mux.Vars(r)
 	var n Nearby
 	json.NewDecoder(r.Body).Decode(&n)
-	// n.id = params["id"]
-	nearby = append(nearby, n)
-	json.NewEncoder(w).Encode(nearby)
+	nearby[strconv.Itoa(n.ID)] = n
+	json.NewEncoder(w).Encode(&n)
 }
 
 // Delete Delete an item
 func Delete(w http.ResponseWriter, r *http.Request) {
 	params := mux.Vars(r)
-	for index, item := range nearby {
-		if strconv.Itoa(item.ID) == params["id"] {
-			nearby = append(nearby[:index], nearby[index+1:]...)
-			break
-		}
-		json.NewEncoder(w).Encode(nearby)
-	}
+	mtx.Lock()
+	_, deleted := nearby[params["id"]]
+	delete(nearby, params["id"])
+	mtx.Lock()
+	json.NewEncoder(w).Encode(deleted)
 }

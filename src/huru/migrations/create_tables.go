@@ -1,4 +1,4 @@
-package main
+package migrations
 
 import (
 	"huru/models/nearby"
@@ -6,7 +6,7 @@ import (
 	"huru/models/share"
 )
 
-// Create whatever
+// CreateHuruTables whatever
 func CreateHuruTables() {
 
 	person.CreateTable()
