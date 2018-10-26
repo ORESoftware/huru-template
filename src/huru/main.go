@@ -1,6 +1,7 @@
 package main
 
 import (
+	"encoding/json"
 	"huru/migrations"
 	"huru/models/nearby"
 	"huru/models/person"
@@ -31,6 +32,11 @@ func errorMiddleware(next http.Handler) http.Handler {
 			if err := recover(); err != nil {
 				log.Error("Caught error in defer/recover middleware: ", err)
 				w.WriteHeader(http.StatusInternalServerError)
+				json.NewEncoder(w).Encode(struct {
+					ID string
+				}{
+					"Oh shiz we done fucked up.",
+				})
 			}
 		}()
 		next.ServeHTTP(w, r)
@@ -56,14 +62,15 @@ func main() {
 
 	router := mux.NewRouter()
 	router.Use(loggingMiddleware)
+	router.Use(errorMiddleware)
 
 	// register and login
 	login := routes.LoginHandler{}
 	router.HandleFunc("/login", login.Login).Methods("GET")
 	register := routes.RegisterHandler{}
-	register.Mount(router)
+	register.Mount(router, struct{}{})
 
-	router.HandleFunc("/register", register.RegisterNewUser).Methods("GET")
+	// router.HandleFunc("/register", register.RegisterNewUser).Methods("GET")
 
 	// people
 	router.HandleFunc("/people", person.GetMany).Methods("GET")
