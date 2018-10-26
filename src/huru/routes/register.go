@@ -26,9 +26,14 @@ var (
 // RegisterHandler just what it says
 type RegisterHandler struct{}
 
+func (h RegisterHandler) foo() {
+	log.Info("mounting routes here 2.")
+}
+
 // Mount just what it says
 func (h RegisterHandler) Mount(router *mux.Router) {
-	log.Info("mounting routes here.")
+	log.Info("mounting routes here 1.")
+	h.foo()
 }
 
 // RegisterNewUser just what it says
