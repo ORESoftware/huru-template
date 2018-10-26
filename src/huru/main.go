@@ -44,7 +44,7 @@ func errorMiddleware(next http.Handler) http.Handler {
 }
 
 func createCollections() {
-	person.Init()
+
 	share.Init()
 	nearby.Init()
 }
@@ -67,16 +67,19 @@ func main() {
 	// register and login
 	login := routes.LoginHandler{}
 	router.HandleFunc("/login", login.Login).Methods("GET")
+
 	register := routes.RegisterHandler{}
 	register.Mount(router, struct{}{})
 
-	// router.HandleFunc("/register", register.RegisterNewUser).Methods("GET")
+	people := person.Init()
+	peopleHandler := routes.PersonHandler{}
+	peopleHandler.Mount(router, routes.PeopleInjection{People: people})
 
 	// people
-	router.HandleFunc("/people", person.GetMany).Methods("GET")
-	router.HandleFunc("/people/{id}", person.GetOne).Methods("GET")
-	router.HandleFunc("/people/{id}", person.Create).Methods("POST")
-	router.HandleFunc("/people/{id}", person.Delete).Methods("DELETE")
+	// router.HandleFunc("/people", person.GetMany).Methods("GET")
+	// router.HandleFunc("/people/{id}", person.GetOne).Methods("GET")
+	// router.HandleFunc("/people/{id}", person.Create).Methods("POST")
+	// router.HandleFunc("/people/{id}", person.Delete).Methods("DELETE")
 
 	// nearby
 	router.HandleFunc("/nearby", nearby.GetMany).Methods("GET")

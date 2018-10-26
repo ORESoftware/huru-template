@@ -1,14 +1,8 @@
 package person
 
 import (
-	"encoding/json"
 	"huru/dbs"
-	"io"
-	"net/http"
-	"strconv"
 	"sync"
-
-	"github.com/gorilla/mux"
 )
 
 // Person The person Type (more like an object)
@@ -45,18 +39,22 @@ CREATE UNIQUE INDEX person_handle ON person (handle);
 CREATE UNIQUE INDEX person_email ON person (email);
 `
 
+// Map muh person map duh
+type Map map[string]Person
+
 var (
 	mtx    sync.Mutex
-	people map[string]Person
+	people Map
 )
 
 // Init create collection
-func Init() {
-	people = make(map[string]Person)
+func Init() Map {
+	people = make(Map)
 	mtx.Lock()
 	people["1"] = Person{ID: 1, Firstname: "Alex", Lastname: "Chaz", Email: "alex@example.com"}
 	people["2"] = Person{ID: 2, Firstname: "Jason", Lastname: "Statham", Email: "jason@example.com"}
 	mtx.Unlock()
+	return people
 }
 
 // CreateTable whatever
@@ -82,42 +80,4 @@ func CreateTable() {
 	// tx.NamedExec("INSERT INTO person (firstname, lastname, email) VALUES (:Firstname, :Lastname, :Email)", s1)
 	// tx.NamedExec("INSERT INTO person (firstname, lastname, email) VALUES (:Firstname, :Lastname, :Email)", s2)
 	tx.Commit()
-}
-
-// GetMany Display all from the people var
-func GetMany(w http.ResponseWriter, r *http.Request) {
-	json.NewEncoder(w).Encode(people)
-}
-
-// GetOne Display a single data
-func GetOne(w http.ResponseWriter, r *http.Request) {
-	params := mux.Vars(r)
-	mtx.Lock()
-	item, ok := people[params["id"]]
-	mtx.Unlock()
-	if ok {
-		json.NewEncoder(w).Encode(item)
-	} else {
-		io.WriteString(w, "null")
-	}
-}
-
-// Create create a new item
-func Create(w http.ResponseWriter, r *http.Request) {
-	var n Person
-	json.NewDecoder(r.Body).Decode(&n)
-	mtx.Lock()
-	people[strconv.Itoa(n.ID)] = n
-	mtx.Unlock()
-	json.NewEncoder(w).Encode(&n)
-}
-
-// Delete Delete an item
-func Delete(w http.ResponseWriter, r *http.Request) {
-	params := mux.Vars(r)
-	mtx.Lock()
-	_, isDeletable := people[params["id"]]
-	delete(people, params["id"])
-	mtx.Unlock()
-	json.NewEncoder(w).Encode(isDeletable)
 }
