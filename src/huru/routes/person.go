@@ -29,14 +29,14 @@ func (h PersonHandler) Mount(router *mux.Router, v PeopleInjection) {
 }
 
 // MakeGetMany Display all from the people var
-func (h PersonHandler) MakeGetMany(v PeopleInjection) func(http.ResponseWriter, *http.Request) {
+func (h PersonHandler) MakeGetMany(v PeopleInjection) http.HandlerFunc {
 	return func(w http.ResponseWriter, r *http.Request) {
 		json.NewEncoder(w).Encode(v.People)
 	}
 }
 
 // MakeGetOne Display a single data
-func (h PersonHandler) MakeGetOne(v PeopleInjection) func(http.ResponseWriter, *http.Request) {
+func (h PersonHandler) MakeGetOne(v PeopleInjection) http.HandlerFunc {
 	return func(w http.ResponseWriter, r *http.Request) {
 		params := mux.Vars(r)
 		mtx.Lock()
@@ -51,7 +51,7 @@ func (h PersonHandler) MakeGetOne(v PeopleInjection) func(http.ResponseWriter, *
 }
 
 // MakeCreate just what it says
-func (h PersonHandler) MakeCreate(v PeopleInjection) func(http.ResponseWriter, *http.Request) {
+func (h PersonHandler) MakeCreate(v PeopleInjection) http.HandlerFunc {
 	return func(w http.ResponseWriter, r *http.Request) {
 		var n person.Person
 		json.NewDecoder(r.Body).Decode(&n)
@@ -63,7 +63,7 @@ func (h PersonHandler) MakeCreate(v PeopleInjection) func(http.ResponseWriter, *
 }
 
 // MakeDelete just what it says
-func (h PersonHandler) MakeDelete(v PeopleInjection) func(http.ResponseWriter, *http.Request) {
+func (h PersonHandler) MakeDelete(v PeopleInjection) http.HandlerFunc {
 	return func(w http.ResponseWriter, r *http.Request) {
 		params := mux.Vars(r)
 		mtx.Lock()

@@ -71,9 +71,11 @@ func main() {
 	register := routes.RegisterHandler{}
 	register.Mount(router, struct{}{})
 
-	people := person.Init()
-	peopleHandler := routes.PersonHandler{}
-	peopleHandler.Mount(router, routes.PeopleInjection{People: people})
+	{
+		people := person.Init()
+		peopleHandler := routes.PersonHandler{}
+		peopleHandler.Mount(router, routes.PeopleInjection{People: people})
+	}
 
 	// people
 	// router.HandleFunc("/people", person.GetMany).Methods("GET")
