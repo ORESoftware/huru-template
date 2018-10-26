@@ -23,12 +23,18 @@ type Nearby struct {
 
 var schema = `
 DROP TABLE nearby;
+
 CREATE TABLE nearby (
 	id SERIAL,
     me integer,
 	you integer,
 	contactTime bigint
-);
+) PARTITION BY LIST(me);
+
+CREATE TABLE nearby_0 PARTITION OF nearby FOR VALUES IN (0);
+CREATE TABLE nearby_1 PARTITION OF nearby FOR VALUES IN (1);
+CREATE TABLE nearby_2 PARTITION OF nearby FOR VALUES IN (2);
+CREATE TABLE nearby_3 PARTITION OF nearby FOR VALUES IN (3);
 `
 
 func makeTimestamp() int64 {
@@ -66,13 +72,17 @@ func CreateTable() {
 	db := dbs.GetDatabaseConnection()
 	db.Exec(schema)
 
-	tx := db.MustBegin()
+	tx, err := db.Begin()
+
+	if err != nil {
+		panic("could not begin transaction")
+	}
 
 	s1 := nearby["1"]
 	s2 := nearby["2"]
 
-	tx.MustExec("INSERT INTO nearby (me, you, contactTime) VALUES ($1, $2, $3)", s1.Me, s1.You, s1.ContactTime)
-	tx.MustExec("INSERT INTO nearby (me, you, contactTime) VALUES ($1, $2, $3)", s2.Me, s2.You, s2.ContactTime)
+	tx.Exec("INSERT INTO nearby (me, you, contactTime) VALUES ($1, $2, $3)", s1.Me, s1.You, s1.ContactTime)
+	tx.Exec("INSERT INTO nearby (me, you, contactTime) VALUES ($1, $2, $3)", s2.Me, s2.You, s2.ContactTime)
 
 	// Named queries can use structs, so if you have an existing struct (i.e. person := &Person{}) that you have populated, you can pass it in as &person
 	// tx.NamedExec("INSERT INTO nearby (me, you, contactTime) VALUES (:me, :you, :contactTime)", s1)

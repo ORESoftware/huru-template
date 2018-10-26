@@ -9,3 +9,6 @@ Have no fear that is it. There are more substantial concerns that you should con
 
 
 https://blog.golang.org/go-maps-in-action
+
+
+https://www.postgresql.org/docs/9.5/static/dml-returning.html

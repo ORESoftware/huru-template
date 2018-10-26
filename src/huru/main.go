@@ -37,12 +37,16 @@ func main() {
 
 	createCollections()
 
-	if os.Getenv("huru_env") == "db" {
+	if true || os.Getenv("huru_env") == "db" {
 		migrations.CreateHuruTables()
 	}
 
 	router := mux.NewRouter()
 	router.Use(loggingMiddleware)
+
+	// register and login
+	router.HandleFunc("/register", person.GetMany).Methods("POST")
+	router.HandleFunc("/login", person.GetOne).Methods("POST")
 
 	// people
 	router.HandleFunc("/people", person.GetMany).Methods("GET")

@@ -22,8 +22,11 @@ type Person struct {
 	Email     string `json:"email,omitempty"`
 }
 
-var schema = `
+const schema = `
 DROP TABLE person;
+DROP INDEX IF EXISTS person_handle;
+DROP INDEX IF EXISTS person_email;
+
 CREATE TABLE person (
 	id SERIAL,
 	handle text,
@@ -37,6 +40,9 @@ CREATE TABLE person (
 	facebook text,
 	instagram text
 );
+
+CREATE UNIQUE INDEX person_handle ON person (handle);
+CREATE UNIQUE INDEX person_email ON person (email);
 `
 
 var (
@@ -59,13 +65,17 @@ func CreateTable() {
 	db := dbs.GetDatabaseConnection()
 	db.Exec(schema)
 
-	tx := db.MustBegin()
+	tx, err := db.Begin()
+
+	if err != nil {
+		panic("could not begin transaction")
+	}
 
 	s1 := people["1"]
 	s2 := people["2"]
 
-	tx.MustExec("INSERT INTO person (firstname, lastname, email) VALUES ($1, $2, $3)", s1.Firstname, s1.Lastname, s1.Email)
-	tx.MustExec("INSERT INTO person (firstname, lastname, email) VALUES ($1, $2, $3)", s2.Firstname, s2.Lastname, s2.Email)
+	tx.Exec("INSERT INTO person (firstname, lastname, email) VALUES ($1, $2, $3)", s1.Firstname, s1.Lastname, s1.Email)
+	tx.Exec("INSERT INTO person (firstname, lastname, email) VALUES ($1, $2, $3)", s2.Firstname, s2.Lastname, s2.Email)
 
 	// Named queries can use structs, so if you have an existing struct (i.e. person := &Person{}) that you have populated, you can pass it in as &person
 
