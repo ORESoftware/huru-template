@@ -5,12 +5,13 @@ import (
 	"huru/models/nearby"
 	"huru/models/person"
 	"huru/models/share"
-	"log"
+	"huru/routes"
 	"net/http"
 	"os"
 
 	"github.com/gorilla/mux"
 	_ "github.com/lib/pq"
+	log "github.com/sirupsen/logrus"
 )
 
 // https://www.cyberciti.biz/faq/howto-add-postgresql-user-account/
@@ -20,6 +21,18 @@ func loggingMiddleware(next http.Handler) http.Handler {
 		// Do stuff here
 		log.Println(r.RequestURI)
 		// Call the next handler, which can be another middleware in the chain, or the final handler.
+		next.ServeHTTP(w, r)
+	})
+}
+
+func errorMiddleware(next http.Handler) http.Handler {
+	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+		defer func() {
+			if err := recover(); err != nil {
+				log.Error("Caught error in defer/recover middleware: ", err)
+				w.WriteHeader(http.StatusInternalServerError)
+			}
+		}()
 		next.ServeHTTP(w, r)
 	})
 }
@@ -45,8 +58,12 @@ func main() {
 	router.Use(loggingMiddleware)
 
 	// register and login
-	router.HandleFunc("/register", person.GetMany).Methods("POST")
-	router.HandleFunc("/login", person.GetOne).Methods("POST")
+	login := routes.LoginHandler{}
+	router.HandleFunc("/login", login.Login).Methods("GET")
+	register := routes.RegisterHandler{}
+	register.Mount(router)
+
+	router.HandleFunc("/register", register.RegisterNewUser).Methods("GET")
 
 	// people
 	router.HandleFunc("/people", person.GetMany).Methods("GET")
