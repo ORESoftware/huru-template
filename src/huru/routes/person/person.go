@@ -2,6 +2,7 @@ package person
 
 import (
 	"encoding/json"
+	"errors"
 	"huru/models/person"
 	"io"
 	"net/http"
@@ -29,6 +30,8 @@ func (h PersonHandler) Mount(router *mux.Router, v PeopleInjection) {
 	router.HandleFunc("/people/{id}", h.makeGetOne(v)).Methods("GET")
 	router.HandleFunc("/people/{id}", h.makeCreate(v)).Methods("POST")
 	router.HandleFunc("/people/{id}", h.makeDelete(v)).Methods("DELETE")
+	router.HandleFunc("/people/{id}", h.makeUpdateByID(v)).Methods("PUT")
+
 }
 
 // MakeGetMany Display all from the people var
@@ -74,5 +77,54 @@ func (h PersonHandler) makeDelete(v PeopleInjection) http.HandlerFunc {
 		delete(v.People, params["id"])
 		mtx.Unlock()
 		json.NewEncoder(w).Encode(isDeletable)
+	}
+}
+
+func (h PersonHandler) makeUpdateByID(v PeopleInjection) http.HandlerFunc {
+	return func(w http.ResponseWriter, r *http.Request) {
+		params := mux.Vars(r)
+		decoder := json.NewDecoder(r.Body)
+		var t person.Person
+		err := decoder.Decode(&t)
+		if err != nil {
+			panic(err)
+		}
+		mtx.Lock()
+		item, ok := v.People[params["id"]]
+		mtx.Unlock()
+
+		if !ok {
+			panic(errors.New("No item to update"))
+		}
+
+		if t.Handle != "" {
+			item.Handle = t.Handle
+		}
+
+		if t.Work != "" {
+			item.Work = t.Work
+		}
+
+		if t.Image != "" {
+			item.Image = t.Image
+		}
+
+		if t.Firstname != "" {
+			item.Firstname = t.Firstname
+		}
+
+		if t.Lastname != "" {
+			item.Lastname = t.Lastname
+		}
+
+		if t.Email != "" {
+			item.Email = t.Email
+		}
+
+		if ok {
+			json.NewEncoder(w).Encode(item)
+		} else {
+			io.WriteString(w, "null")
+		}
 	}
 }

@@ -2,6 +2,7 @@ package nearby
 
 import (
 	"encoding/json"
+	"errors"
 	"huru/models/nearby"
 	"io"
 	"net/http"
@@ -29,6 +30,7 @@ func (h NearbyHandler) Mount(router *mux.Router, v NearbyInjection) {
 	router.HandleFunc("/nearby/{id}", h.makeGetOne(v)).Methods("GET")
 	router.HandleFunc("/nearby/{id}", h.makeCreate(v)).Methods("POST")
 	router.HandleFunc("/nearby/{id}", h.makeDelete(v)).Methods("DELETE")
+	router.HandleFunc("/nearby/{id}", h.makeUpdate(v)).Methods("PUT")
 }
 
 // GetMany Display all from the people var
@@ -45,6 +47,36 @@ func (h NearbyHandler) makeGetOne(v NearbyInjection) http.HandlerFunc {
 		mtx.Lock()
 		item, ok := v.Nearby[params["id"]]
 		mtx.Unlock()
+		if ok {
+			json.NewEncoder(w).Encode(item)
+		} else {
+			io.WriteString(w, "null")
+		}
+	}
+}
+
+// GetOne Display a single data
+func (h NearbyHandler) makeUpdate(v NearbyInjection) http.HandlerFunc {
+	return func(w http.ResponseWriter, r *http.Request) {
+		params := mux.Vars(r)
+		decoder := json.NewDecoder(r.Body)
+		var t nearby.Nearby
+		err := decoder.Decode(&t)
+		if err != nil {
+			panic(err)
+		}
+		mtx.Lock()
+		item, ok := v.Nearby[params["id"]]
+		mtx.Unlock()
+
+		if !ok {
+			panic(errors.New("No item to update"))
+		}
+
+		if t.ContactTime != 0 {
+			item.ContactTime = t.ContactTime
+		}
+
 		if ok {
 			json.NewEncoder(w).Encode(item)
 		} else {

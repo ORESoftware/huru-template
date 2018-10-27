@@ -1,10 +1,9 @@
 package routes
 
 import (
-	// nearbym "huru/models/nearby"
-	// personm "huru/models/person"
-	// sharem "huru/models/share"
-
+	nearbym "huru/models/nearby"
+	personm "huru/models/person"
+	sharem "huru/models/share"
 	"huru/routes/login"
 	"huru/routes/nearby"
 	"huru/routes/person"
