@@ -6,11 +6,7 @@ import (
 	"huru/models/nearby"
 	"huru/models/person"
 	"huru/models/share"
-	loginRouter "huru/routes/login"
-	nearbyRouter "huru/routes/nearby"
-	personRouter "huru/routes/person"
-	registerRouter "huru/routes/register"
-	shareRouter "huru/routes/share"
+	"huru/routes"
 	"net/http"
 	"os"
 
@@ -56,7 +52,10 @@ func main() {
 		migrations.CreateHuruTables()
 	}
 
-	// handlers := routes.HuruRouteHandlers{}
+	handlers := routes.HuruRouteHandlers{}.GetHandlers()
+	injections := routes.HuruInjection{}.GetInjections(person.Init(), nearby.Init(), share.Init())
+
+	// p := handlers.Person{}
 	// injection := routes.HuruInjection{}
 
 	router := mux.NewRouter()
@@ -65,13 +64,13 @@ func main() {
 
 	// register and login
 	{
-		login := loginRouter.LoginHandler{}
-		router.HandleFunc("/login", login.Login).Methods("GET")
+		handler := handlers.Login
+		router.HandleFunc("/login", handler.Login).Methods("GET")
 	}
 
 	{
-		register := registerRouter.RegisterHandler{}
-		register.Mount(router, struct{}{})
+		handler := handlers.Register
+		handler.Mount(router, struct{}{})
 	}
 
 	{
@@ -80,9 +79,9 @@ func main() {
 		// router.HandleFunc("/people/{id}", person.GetOne).Methods("GET")
 		// router.HandleFunc("/people/{id}", person.Create).Methods("POST")
 		// router.HandleFunc("/people/{id}", person.Delete).Methods("DELETE")
-		people := person.Init()
-		handler := personRouter.PersonHandler{}
-		handler.Mount(router, personRouter.PeopleInjection{People: people})
+
+		handler := handlers.Person
+		handler.Mount(router, injections.People)
 	}
 
 	{
@@ -91,9 +90,8 @@ func main() {
 		// router.HandleFunc("/nearby/{id}", nearby.GetOne).Methods("GET")
 		// router.HandleFunc("/nearby/{id}", nearby.Create).Methods("POST")
 		// router.HandleFunc("/nearby/{id}", nearby.Delete).Methods("DELETE")
-		nearbys := nearby.Init()
-		handler := nearbyRouter.NearbyHandler{}
-		handler.Mount(router, nearbyRouter.NearbyInjection{Nearby: nearbys})
+		handler := handlers.Nearby
+		handler.Mount(router, injections.Nearby)
 	}
 
 	{
@@ -102,9 +100,8 @@ func main() {
 		// router.HandleFunc("/share/{id}", share.GetOne).Methods("GET")
 		// router.HandleFunc("/share/{id}", share.Create).Methods("POST")
 		// router.HandleFunc("/share/{id}", share.Delete).Methods("DELETE")
-		shares := share.Init()
-		handler := shareRouter.ShareHandler{}
-		handler.Mount(router, shareRouter.ShareInjection{Share: shares})
+		handler := handlers.Share
+		handler.Mount(router, injections.Share)
 	}
 
 	log.Fatal(http.ListenAndServe(":8000", router))
