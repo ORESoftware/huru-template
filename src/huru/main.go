@@ -72,33 +72,36 @@ func main() {
 	register.Mount(router, struct{}{})
 
 	{
+		// people
+		// router.HandleFunc("/people", person.GetMany).Methods("GET")
+		// router.HandleFunc("/people/{id}", person.GetOne).Methods("GET")
+		// router.HandleFunc("/people/{id}", person.Create).Methods("POST")
+		// router.HandleFunc("/people/{id}", person.Delete).Methods("DELETE")
 		people := person.Init()
 		peopleHandler := routes.PersonHandler{}
 		peopleHandler.Mount(router, routes.PeopleInjection{People: people})
 	}
 
 	{
-		// people
-		// router.HandleFunc("/people", person.GetMany).Methods("GET")
-		// router.HandleFunc("/people/{id}", person.GetOne).Methods("GET")
-		// router.HandleFunc("/people/{id}", person.Create).Methods("POST")
-		// router.HandleFunc("/people/{id}", person.Delete).Methods("DELETE")
-	}
-
-	{
 		// nearby
-		router.HandleFunc("/nearby", nearby.GetMany).Methods("GET")
-		router.HandleFunc("/nearby/{id}", nearby.GetOne).Methods("GET")
-		router.HandleFunc("/nearby/{id}", nearby.Create).Methods("POST")
-		router.HandleFunc("/nearby/{id}", nearby.Delete).Methods("DELETE")
+		// router.HandleFunc("/nearby", nearby.GetMany).Methods("GET")
+		// router.HandleFunc("/nearby/{id}", nearby.GetOne).Methods("GET")
+		// router.HandleFunc("/nearby/{id}", nearby.Create).Methods("POST")
+		// router.HandleFunc("/nearby/{id}", nearby.Delete).Methods("DELETE")
+		nearbys := nearby.Init()
+		nearbyHandler := routes.NearbyHandler{}
+		nearbyHandler.Mount(router, routes.NearbyInjection{Nearby: nearbys})
 	}
 
 	{
 		// share
-		router.HandleFunc("/share", share.GetMany).Methods("GET")
-		router.HandleFunc("/share/{id}", share.GetOne).Methods("GET")
-		router.HandleFunc("/share/{id}", share.Create).Methods("POST")
-		router.HandleFunc("/share/{id}", share.Delete).Methods("DELETE")
+		// router.HandleFunc("/share", share.GetMany).Methods("GET")
+		// router.HandleFunc("/share/{id}", share.GetOne).Methods("GET")
+		// router.HandleFunc("/share/{id}", share.Create).Methods("POST")
+		// router.HandleFunc("/share/{id}", share.Delete).Methods("DELETE")
+		shares := share.Init()
+		shareHandler := routes.ShareHandler{}
+		shareHandler.Mount(router, routes.ShareInjection{Share: shares})
 	}
 
 	log.Fatal(http.ListenAndServe(":8000", router))

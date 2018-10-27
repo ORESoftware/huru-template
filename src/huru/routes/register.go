@@ -28,7 +28,6 @@ type RegisterHandler struct{}
 
 // Mount just what it says
 func (h RegisterHandler) Mount(router *mux.Router, v interface{}) {
-	log.Info("mounting routes here 1.")
 	router.HandleFunc("/register", h.MakeRegisterNewUser(v))
 }
 

@@ -1,14 +1,8 @@
 package share
 
 import (
-	"encoding/json"
 	"huru/dbs"
-	"io"
-	"net/http"
-	"strconv"
 	"sync"
-
-	"github.com/gorilla/mux"
 )
 
 // Share The person Type (more like an object)
@@ -37,20 +31,24 @@ CREATE TABLE share_1 PARTITION OF share FOR VALUES IN (1);
 CREATE TABLE share_2 PARTITION OF share FOR VALUES IN (2);
 `
 
+// Map mappy
+type Map map[string]Share
+
 var (
 	mtx    sync.Mutex
-	shares map[string]Share
+	shares Map
 )
 
 // Init create collection
-func Init() {
-	shares = make(map[string]Share)
+func Init() Map {
+	shares = make(Map)
 	mtx.Lock()
 	shares["1"] = Share{ID: 1, Me: 1, You: 2, FieldName: "sharePhone", FieldValue: false}
 	shares["2"] = Share{ID: 2, Me: 2, You: 1, FieldName: "shareEmail", FieldValue: true}
 	shares["3"] = Share{ID: 3, Me: 1, You: 2, FieldName: "sharePhone", FieldValue: true}
 	shares["4"] = Share{ID: 4, Me: 2, You: 1, FieldName: "shareEmail", FieldValue: false}
 	mtx.Unlock()
+	return shares
 }
 
 // CreateTable whatever
@@ -77,42 +75,4 @@ func CreateTable() {
 	// tx.NamedExec("INSERT INTO share (me, you, sharePhone, shareEmail) VALUES (:me, :you, :sharePhone, :shareEmail)", s2)
 	tx.Commit()
 
-}
-
-// GetMany Display all from the people var
-func GetMany(w http.ResponseWriter, r *http.Request) {
-	json.NewEncoder(w).Encode(shares)
-}
-
-// GetOne Display a single data
-func GetOne(w http.ResponseWriter, r *http.Request) {
-	params := mux.Vars(r)
-	mtx.Lock()
-	item, ok := shares[params["id"]]
-	mtx.Unlock()
-	if ok {
-		json.NewEncoder(w).Encode(item)
-	} else {
-		io.WriteString(w, "null")
-	}
-}
-
-// Create create a new item
-func Create(w http.ResponseWriter, r *http.Request) {
-	var n Share
-	json.NewDecoder(r.Body).Decode(&n)
-	mtx.Lock()
-	shares[strconv.Itoa(n.ID)] = n
-	mtx.Unlock()
-	json.NewEncoder(w).Encode(&n)
-}
-
-// Delete Delete an item
-func Delete(w http.ResponseWriter, r *http.Request) {
-	params := mux.Vars(r)
-	mtx.Lock()
-	_, deleted := shares[params["id"]]
-	delete(shares, params["id"])
-	mtx.Unlock()
-	json.NewEncoder(w).Encode(deleted)
 }
