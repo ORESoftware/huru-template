@@ -5,8 +5,8 @@ import (
 	"sync"
 )
 
-// Person The person Type (more like an object)
-type Person struct {
+// Model The person Type (more like an object)
+type Model struct {
 	ID        int    `json:"id,omitempty"`
 	Handle    string `json:"handle,omitempty"`
 	Work      string `json:"work,omitempty"`
@@ -40,7 +40,7 @@ CREATE UNIQUE INDEX person_email ON person (email);
 `
 
 // Map muh person map duh
-type Map map[string]Person
+type Map map[string]Model
 
 var (
 	mtx    sync.Mutex
@@ -51,8 +51,8 @@ var (
 func Init() Map {
 	people = make(Map)
 	mtx.Lock()
-	people["1"] = Person{ID: 1, Firstname: "Alex", Lastname: "Chaz", Email: "alex@example.com"}
-	people["2"] = Person{ID: 2, Firstname: "Jason", Lastname: "Statham", Email: "jason@example.com"}
+	people["1"] = Model{ID: 1, Firstname: "Alex", Lastname: "Chaz", Email: "alex@example.com"}
+	people["2"] = Model{ID: 2, Firstname: "Jason", Lastname: "Statham", Email: "jason@example.com"}
 	mtx.Unlock()
 	return people
 }

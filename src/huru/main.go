@@ -74,7 +74,11 @@ func main() {
 	}
 
 	handlers := routes.HuruRouteHandlers{}.GetHandlers()
-	injections := routes.HuruInjection{}.GetInjections(person.Init(), nearby.Init(), share.Init())
+	injections := routes.HuruInjection{}.GetInjections(
+		person.Init(),
+		nearby.Init(),
+		share.Init(),
+	)
 
 	// p := handlers.Person{}
 	// injection := routes.HuruInjection{}

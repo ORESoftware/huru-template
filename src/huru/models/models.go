@@ -7,6 +7,10 @@ import (
 	"reflect"
 )
 
+type Container struct {
+	Person person.Model
+}
+
 // GetModels foo
 func GetModels() interface{} {
 	return struct {
