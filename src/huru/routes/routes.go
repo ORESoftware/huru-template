@@ -13,7 +13,7 @@ import (
 
 // HuruRouteHandlers foobar
 type HuruRouteHandlers struct {
-	Register register.RegisterHandler
+	Register register.Handler
 	Login    login.LoginHandler
 	Nearby   nearby.NearbyHandler
 	Share    share.ShareHandler
@@ -30,7 +30,7 @@ type HuruInjection struct {
 // GetHandlers money sauce
 func (h HuruRouteHandlers) GetHandlers() HuruRouteHandlers {
 	return HuruRouteHandlers{
-		register.RegisterHandler{},
+		register.Handler{},
 		login.LoginHandler{},
 		nearby.NearbyHandler{},
 		share.ShareHandler{},

@@ -2,6 +2,7 @@ package main
 
 import (
 	"encoding/json"
+	"fmt"
 	"huru/migrations"
 	"huru/models/nearby"
 	"huru/models/person"
@@ -124,6 +125,19 @@ func main() {
 		handler.Mount(router, injections.Share)
 	}
 
-	log.Fatal(http.ListenAndServe(":8000", router))
+	host := os.Getenv("huru_api_host")
+	port := os.Getenv("huru_api_port")
+
+	if host == "" {
+		host = "localhost"
+	}
+
+	if port == "" {
+		port = "8000"
+	}
+
+	log.Info(fmt.Sprintf("Huru API server listening on port %s", port))
+	path := fmt.Sprintf("%s:%s", host, port)
+	log.Fatal(http.ListenAndServe(path, router))
 
 }

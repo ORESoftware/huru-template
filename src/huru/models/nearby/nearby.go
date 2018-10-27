@@ -7,8 +7,8 @@ import (
 	"time"
 )
 
-// Nearby whatever
-type Nearby struct {
+// Model - Nearby model whatever
+type Model struct {
 	ID          int   `json:"id,omitempty"`
 	Me          int   `json:"me,omitempty"`
 	You         int   `json:"you,omitempty"`
@@ -44,7 +44,8 @@ func getValues(m interface{}) []interface{} {
 	return result
 }
 
-type Map map[string]Nearby
+// Map - id to model map
+type Map map[string]Model
 
 var (
 	mtx    sync.Mutex
@@ -53,10 +54,10 @@ var (
 
 // Init create collection
 func Init() Map {
-	nearby = make(map[string]Nearby)
+	nearby = make(map[string]Model)
 	mtx.Lock()
-	nearby["1"] = Nearby{ID: 1, Me: 1, You: 2, ContactTime: makeTimestamp()}
-	nearby["2"] = Nearby{ID: 2, Me: 2, You: 1, ContactTime: makeTimestamp()}
+	nearby["1"] = Model{ID: 1, Me: 1, You: 2, ContactTime: makeTimestamp()}
+	nearby["2"] = Model{ID: 2, Me: 2, You: 1, ContactTime: makeTimestamp()}
 	mtx.Unlock()
 	return nearby
 }

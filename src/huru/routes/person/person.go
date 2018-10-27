@@ -12,6 +12,10 @@ import (
 	"github.com/gorilla/mux"
 )
 
+type Inter interface {
+	Zoom() string
+}
+
 // PersonHandler just what it says
 type PersonHandler struct{}
 
@@ -31,7 +35,6 @@ func (h PersonHandler) Mount(router *mux.Router, v PeopleInjection) {
 	router.HandleFunc("/people/{id}", h.makeCreate(v)).Methods("POST")
 	router.HandleFunc("/people/{id}", h.makeDelete(v)).Methods("DELETE")
 	router.HandleFunc("/people/{id}", h.makeUpdateByID(v)).Methods("PUT")
-
 }
 
 // MakeGetMany Display all from the people var

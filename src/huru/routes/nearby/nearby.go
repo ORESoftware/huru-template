@@ -60,7 +60,7 @@ func (h NearbyHandler) makeUpdate(v NearbyInjection) http.HandlerFunc {
 	return func(w http.ResponseWriter, r *http.Request) {
 		params := mux.Vars(r)
 		decoder := json.NewDecoder(r.Body)
-		var t nearby.Nearby
+		var t nearby.Model
 		err := decoder.Decode(&t)
 		if err != nil {
 			panic(err)
@@ -88,7 +88,7 @@ func (h NearbyHandler) makeUpdate(v NearbyInjection) http.HandlerFunc {
 // Create create a new item
 func (h NearbyHandler) makeCreate(v NearbyInjection) http.HandlerFunc {
 	return func(w http.ResponseWriter, r *http.Request) {
-		var n nearby.Nearby
+		var n nearby.Model
 		json.NewDecoder(r.Body).Decode(&n)
 		mtx.Lock()
 		v.Nearby[strconv.Itoa(n.ID)] = n

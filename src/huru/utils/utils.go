@@ -6,7 +6,7 @@ import "bytes"
 func JoinArgs(strangs ...string) string {
 	buffer := bytes.NewBufferString("")
 	for _, s := range strangs {
-		buffer.WriteString(s)
+		buffer.WriteString(s + " ")
 	}
 	return buffer.String()
 }

@@ -1,4 +1,5 @@
 
+play: https://play.golang.org/p/DlafU_R_phq
 
 on parentheses in golang function signatures:
 
