@@ -10,3 +10,10 @@ func JoinArgs(strangs ...string) string {
 	}
 	return buffer.String()
 }
+
+// AppError send this response
+type AppError struct {
+	StatusCode    int
+	Message       string
+	OriginalError error
+}

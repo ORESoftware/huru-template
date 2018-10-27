@@ -30,12 +30,32 @@ func errorMiddleware(next http.Handler) http.Handler {
 	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 		defer func() {
 			if err := recover(); err != nil {
+
 				log.Error("Caught error in defer/recover middleware: ", err)
-				w.WriteHeader(http.StatusInternalServerError)
+				originalError := err.(struct{ OriginalError error }).OriginalError
+
+				if originalError != nil {
+					log.Error("Original error in defer/recover middleware: ", originalError)
+				}
+
+				statusCode := err.(struct{ StatusCode int }).StatusCode
+
+				if statusCode != 0 {
+					w.WriteHeader(statusCode)
+				} else {
+					w.WriteHeader(http.StatusInternalServerError)
+				}
+
+				message := err.(struct{ Message string }).Message
+
+				if message == "" {
+					message = "Unknown error message."
+				}
+
 				json.NewEncoder(w).Encode(struct {
 					ID string
 				}{
-					"Oh shiz we done fucked up.",
+					message,
 				})
 			}
 		}()

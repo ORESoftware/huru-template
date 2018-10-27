@@ -99,7 +99,10 @@ func (h ShareHandler) makeUpdateByID(v ShareInjection) http.HandlerFunc {
 
 		if t.FieldName != "" {
 			if t.FieldName != item.FieldName {
-				panic(errors.New(utils.JoinArgs("FieldName does not match, see: ", t.FieldName, item.FieldName)))
+				panic(utils.AppError{
+					StatusCode: 409,
+					Message:    utils.JoinArgs("FieldName does not match, see: ", t.FieldName, item.FieldName),
+				})
 			}
 		}
 
