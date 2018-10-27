@@ -1,4 +1,4 @@
-package routes
+package nearby
 
 import (
 	"encoding/json"
@@ -6,6 +6,7 @@ import (
 	"io"
 	"net/http"
 	"strconv"
+	"sync"
 
 	"github.com/gorilla/mux"
 )
@@ -17,6 +18,10 @@ type NearbyHandler struct{}
 type NearbyInjection struct {
 	Nearby nearby.Map
 }
+
+var (
+	mtx sync.Mutex
+)
 
 // Mount just what it says
 func (h NearbyHandler) Mount(router *mux.Router, v NearbyInjection) {

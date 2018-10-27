@@ -1,4 +1,4 @@
-package routes
+package register
 
 import (
 	"encoding/json"

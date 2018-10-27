@@ -1,4 +1,4 @@
-package routes
+package share
 
 import (
 	"encoding/json"
@@ -6,6 +6,7 @@ import (
 	"io"
 	"net/http"
 	"strconv"
+	"sync"
 
 	"github.com/gorilla/mux"
 )
@@ -17,6 +18,10 @@ type ShareHandler struct{}
 type ShareInjection struct {
 	Share share.Map
 }
+
+var (
+	mtx sync.Mutex
+)
 
 // Mount just what it says
 func (h ShareHandler) Mount(router *mux.Router, v ShareInjection) {

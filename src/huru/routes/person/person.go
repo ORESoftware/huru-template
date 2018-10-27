@@ -1,4 +1,4 @@
-package routes
+package person
 
 import (
 	"encoding/json"
@@ -6,6 +6,7 @@ import (
 	"io"
 	"net/http"
 	"strconv"
+	"sync"
 
 	"github.com/gorilla/mux"
 )
@@ -17,6 +18,10 @@ type PersonHandler struct{}
 type PeopleInjection struct {
 	People person.Map
 }
+
+var (
+	mtx sync.Mutex
+)
 
 // Mount just what it says
 func (h PersonHandler) Mount(router *mux.Router, v PeopleInjection) {
