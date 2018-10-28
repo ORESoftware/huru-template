@@ -71,13 +71,6 @@ func main() {
 		migrations.CreateHuruTables()
 	}
 
-	// handlers := routes.HuruRouteHandlers{}.GetHandlers()
-	// injections := routes.HuruInjection{}.GetInjections(
-	// 	person.Init(),
-	// 	nearby.Init(),
-	// 	share.Init(),
-	// )
-
 	router := mux.NewRouter()
 	router.Use(loggingMiddleware)
 	router.Use(errorMiddleware)

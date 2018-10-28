@@ -14,7 +14,7 @@ import (
 )
 
 // ShareHandler just what it says
-type ShareHandler struct{}
+type Handler struct{}
 
 // ShareInjection - injects people
 type ShareInjection struct {
@@ -26,7 +26,7 @@ var (
 )
 
 // Mount just what it says
-func (h ShareHandler) Mount(router *mux.Router, v ShareInjection) {
+func (h Handler) Mount(router *mux.Router, v ShareInjection) {
 	router.HandleFunc("/share", h.makeGetMany(v)).Methods("GET")
 	router.HandleFunc("/share/{id}", h.makeGetOne(v)).Methods("GET")
 	router.HandleFunc("/share/{id}", h.makeCreate(v)).Methods("POST")
@@ -35,14 +35,14 @@ func (h ShareHandler) Mount(router *mux.Router, v ShareInjection) {
 }
 
 // MakeGetMany Display all from the people var
-func (h ShareHandler) makeGetMany(v ShareInjection) http.HandlerFunc {
+func (h Handler) makeGetMany(v ShareInjection) http.HandlerFunc {
 	return func(w http.ResponseWriter, r *http.Request) {
 		json.NewEncoder(w).Encode(v.Share)
 	}
 }
 
 // MakeGetOne Display a single data
-func (h ShareHandler) makeGetOne(v ShareInjection) http.HandlerFunc {
+func (h Handler) makeGetOne(v ShareInjection) http.HandlerFunc {
 	return func(w http.ResponseWriter, r *http.Request) {
 		params := mux.Vars(r)
 		mtx.Lock()
@@ -57,7 +57,7 @@ func (h ShareHandler) makeGetOne(v ShareInjection) http.HandlerFunc {
 }
 
 // MakeCreate create a new item
-func (h ShareHandler) makeCreate(v ShareInjection) http.HandlerFunc {
+func (h Handler) makeCreate(v ShareInjection) http.HandlerFunc {
 	return func(w http.ResponseWriter, r *http.Request) {
 		var n share.Model
 		json.NewDecoder(r.Body).Decode(&n)
@@ -69,7 +69,7 @@ func (h ShareHandler) makeCreate(v ShareInjection) http.HandlerFunc {
 }
 
 // MakeDelete Delete an item
-func (h ShareHandler) makeDelete(v ShareInjection) http.HandlerFunc {
+func (h Handler) makeDelete(v ShareInjection) http.HandlerFunc {
 	return func(w http.ResponseWriter, r *http.Request) {
 		params := mux.Vars(r)
 		mtx.Lock()
@@ -80,7 +80,7 @@ func (h ShareHandler) makeDelete(v ShareInjection) http.HandlerFunc {
 	}
 }
 
-func (h ShareHandler) makeUpdateByID(v ShareInjection) http.HandlerFunc {
+func (h Handler) makeUpdateByID(v ShareInjection) http.HandlerFunc {
 	return func(w http.ResponseWriter, r *http.Request) {
 		params := mux.Vars(r)
 		decoder := json.NewDecoder(r.Body)

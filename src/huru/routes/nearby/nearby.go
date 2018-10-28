@@ -13,7 +13,7 @@ import (
 )
 
 // NearbyHandler just what it says
-type NearbyHandler struct{}
+type Handler struct{}
 
 // NearbyInjection - injects nearby
 type NearbyInjection struct {
@@ -25,7 +25,7 @@ var (
 )
 
 // Mount just what it says
-func (h NearbyHandler) Mount(router *mux.Router, v NearbyInjection) {
+func (h Handler) Mount(router *mux.Router, v NearbyInjection) {
 	router.HandleFunc("/nearby", h.makeGetMany(v)).Methods("GET")
 	router.HandleFunc("/nearby/{id}", h.makeGetOne(v)).Methods("GET")
 	router.HandleFunc("/nearby/{id}", h.makeCreate(v)).Methods("POST")
@@ -34,14 +34,14 @@ func (h NearbyHandler) Mount(router *mux.Router, v NearbyInjection) {
 }
 
 // GetMany Display all from the people var
-func (h NearbyHandler) makeGetMany(v NearbyInjection) http.HandlerFunc {
+func (h Handler) makeGetMany(v NearbyInjection) http.HandlerFunc {
 	return func(w http.ResponseWriter, r *http.Request) {
 		json.NewEncoder(w).Encode(v.Nearby)
 	}
 }
 
 // GetOne Display a single data
-func (h NearbyHandler) makeGetOne(v NearbyInjection) http.HandlerFunc {
+func (h Handler) makeGetOne(v NearbyInjection) http.HandlerFunc {
 	return func(w http.ResponseWriter, r *http.Request) {
 		params := mux.Vars(r)
 		mtx.Lock()
@@ -56,7 +56,7 @@ func (h NearbyHandler) makeGetOne(v NearbyInjection) http.HandlerFunc {
 }
 
 // GetOne Display a single data
-func (h NearbyHandler) makeUpdate(v NearbyInjection) http.HandlerFunc {
+func (h Handler) makeUpdate(v NearbyInjection) http.HandlerFunc {
 	return func(w http.ResponseWriter, r *http.Request) {
 		params := mux.Vars(r)
 		decoder := json.NewDecoder(r.Body)
@@ -86,7 +86,7 @@ func (h NearbyHandler) makeUpdate(v NearbyInjection) http.HandlerFunc {
 }
 
 // Create create a new item
-func (h NearbyHandler) makeCreate(v NearbyInjection) http.HandlerFunc {
+func (h Handler) makeCreate(v NearbyInjection) http.HandlerFunc {
 	return func(w http.ResponseWriter, r *http.Request) {
 		var n nearby.Model
 		json.NewDecoder(r.Body).Decode(&n)
@@ -98,7 +98,7 @@ func (h NearbyHandler) makeCreate(v NearbyInjection) http.HandlerFunc {
 }
 
 // Delete Delete an item
-func (h NearbyHandler) makeDelete(v NearbyInjection) http.HandlerFunc {
+func (h Handler) makeDelete(v NearbyInjection) http.HandlerFunc {
 	return func(w http.ResponseWriter, r *http.Request) {
 		params := mux.Vars(r)
 		mtx.Lock()

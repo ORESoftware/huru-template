@@ -2,10 +2,10 @@ package login
 
 import "net/http"
 
-// LoginHandler just what it says
-type LoginHandler struct{}
+// Handler just what it says
+type Handler struct{}
 
 // Login just what it says
-func (h LoginHandler) Login(w http.ResponseWriter, r *http.Request) {
+func (h Handler) Login(w http.ResponseWriter, r *http.Request) {
 
 }

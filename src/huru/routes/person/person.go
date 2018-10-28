@@ -12,12 +12,8 @@ import (
 	"github.com/gorilla/mux"
 )
 
-type Inter interface {
-	Zoom() string
-}
-
 // PersonHandler just what it says
-type PersonHandler struct{}
+type Handler struct{}
 
 // PeopleInjection - injects people
 type PeopleInjection struct {
@@ -29,7 +25,7 @@ var (
 )
 
 // Mount just what it says
-func (h PersonHandler) Mount(router *mux.Router, v PeopleInjection) {
+func (h Handler) Mount(router *mux.Router, v PeopleInjection) {
 	router.HandleFunc("/people", h.makeGetMany(v)).Methods("GET")
 	router.HandleFunc("/people/{id}", h.makeGetOne(v)).Methods("GET")
 	router.HandleFunc("/people/{id}", h.makeCreate(v)).Methods("POST")
@@ -38,14 +34,14 @@ func (h PersonHandler) Mount(router *mux.Router, v PeopleInjection) {
 }
 
 // MakeGetMany Display all from the people var
-func (h PersonHandler) makeGetMany(v PeopleInjection) http.HandlerFunc {
+func (h Handler) makeGetMany(v PeopleInjection) http.HandlerFunc {
 	return func(w http.ResponseWriter, r *http.Request) {
 		json.NewEncoder(w).Encode(v.People)
 	}
 }
 
 // MakeGetOne Display a single data
-func (h PersonHandler) makeGetOne(v PeopleInjection) http.HandlerFunc {
+func (h Handler) makeGetOne(v PeopleInjection) http.HandlerFunc {
 	return func(w http.ResponseWriter, r *http.Request) {
 		params := mux.Vars(r)
 		mtx.Lock()
@@ -60,7 +56,7 @@ func (h PersonHandler) makeGetOne(v PeopleInjection) http.HandlerFunc {
 }
 
 // MakeCreate just what it says
-func (h PersonHandler) makeCreate(v PeopleInjection) http.HandlerFunc {
+func (h Handler) makeCreate(v PeopleInjection) http.HandlerFunc {
 	return func(w http.ResponseWriter, r *http.Request) {
 		var n person.Model
 		json.NewDecoder(r.Body).Decode(&n)
@@ -72,7 +68,7 @@ func (h PersonHandler) makeCreate(v PeopleInjection) http.HandlerFunc {
 }
 
 // MakeDelete just what it says
-func (h PersonHandler) makeDelete(v PeopleInjection) http.HandlerFunc {
+func (h Handler) makeDelete(v PeopleInjection) http.HandlerFunc {
 	return func(w http.ResponseWriter, r *http.Request) {
 		params := mux.Vars(r)
 		mtx.Lock()
@@ -83,7 +79,7 @@ func (h PersonHandler) makeDelete(v PeopleInjection) http.HandlerFunc {
 	}
 }
 
-func (h PersonHandler) makeUpdateByID(v PeopleInjection) http.HandlerFunc {
+func (h Handler) makeUpdateByID(v PeopleInjection) http.HandlerFunc {
 	return func(w http.ResponseWriter, r *http.Request) {
 		params := mux.Vars(r)
 		decoder := json.NewDecoder(r.Body)

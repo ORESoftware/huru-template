@@ -1,7 +1,6 @@
 package routes
 
 import (
-	"huru/models"
 	"huru/routes/login"
 	"huru/routes/nearby"
 	"huru/routes/person"
@@ -11,10 +10,10 @@ import (
 
 // Handlers
 type RegisterHandler = register.Handler
-type LoginHandler = login.LoginHandler
-type NearbyHandler = nearby.NearbyHandler
-type ShareHandler = share.ShareHandler
-type PersonHandler = person.PersonHandler
+type LoginHandler = login.Handler
+type NearbyHandler = nearby.Handler
+type ShareHandler = share.Handler
+type PersonHandler = person.Handler
 
 type HandlerCreator = func() struct{}
 
@@ -30,35 +29,19 @@ type PersonInjection = person.PeopleInjection
 // HuruRouteHandlers foobar
 type HuruRouteHandlers struct {
 	Register register.Handler
-	Login    login.LoginHandler
-	Nearby   nearby.NearbyHandler
-	Share    share.ShareHandler
-	Person   person.PersonHandler
-}
-
-// HuruInjection foobar
-type HuruInjection struct {
-	People person.PeopleInjection
-	Share  share.ShareInjection
-	Nearby nearby.NearbyInjection
+	Login    login.Handler
+	Nearby   nearby.Handler
+	Share    share.Handler
+	Person   person.Handler
 }
 
 // GetHandlers money sauce
 func (h HuruRouteHandlers) GetHandlers() HuruRouteHandlers {
 	return HuruRouteHandlers{
 		register.Handler{},
-		login.LoginHandler{},
-		nearby.NearbyHandler{},
-		share.ShareHandler{},
-		person.PersonHandler{},
-	}
-}
-
-// GetInjections money sauce
-func (h HuruInjection) GetInjections(p models.PersonMap, n models.NearbyMap, s models.ShareMap) HuruInjection {
-	return HuruInjection{
-		person.PeopleInjection{People: p},
-		share.ShareInjection{Share: s},
-		nearby.NearbyInjection{Nearby: n},
+		login.Handler{},
+		nearby.Handler{},
+		share.Handler{},
+		person.Handler{},
 	}
 }
