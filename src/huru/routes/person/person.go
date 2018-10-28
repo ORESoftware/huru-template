@@ -92,7 +92,7 @@ func (h Handler) makeUpdateByID(v PeopleInjection) http.HandlerFunc {
 		item, ok := v.People[params["id"]]
 		mtx.Unlock()
 
-		if !ok {
+		if ok == false {
 			panic(errors.New("No item to update"))
 		}
 

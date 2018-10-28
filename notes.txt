@@ -13,3 +13,6 @@ https://blog.golang.org/go-maps-in-action
 
 
 https://www.postgresql.org/docs/9.5/static/dml-returning.html
+
+
+https://stackoverflow.com/questions/23350173/how-do-you-loop-through-the-fields-in-a-golang-struct-to-get-and-set-values-in-a/23351753
