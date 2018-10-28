@@ -26,6 +26,11 @@ var (
 // Handler => RegisterHandler just what it says
 type Handler struct{}
 
+//
+func CreateHandler() struct{} {
+	return Handler{}
+}
+
 // Mount just what it says
 func (h Handler) Mount(router *mux.Router, v interface{}) {
 	router.HandleFunc("/register", h.makeRegisterNewUser(v)).Methods("POST")

@@ -16,6 +16,12 @@ type NearbyHandler = nearby.NearbyHandler
 type ShareHandler = share.ShareHandler
 type PersonHandler = person.PersonHandler
 
+type HandlerCreator = func() struct{}
+
+var Handlers = map[string]HandlerCreator{
+	"Register": register.CreateHandler,
+}
+
 // Injection
 type NearbyInjection = nearby.NearbyInjection
 type ShareInjection = share.ShareInjection
