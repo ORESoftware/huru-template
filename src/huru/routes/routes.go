@@ -1,15 +1,25 @@
 package routes
 
 import (
-	nearbym "huru/models/nearby"
-	personm "huru/models/person"
-	sharem "huru/models/share"
+	"huru/models"
 	"huru/routes/login"
 	"huru/routes/nearby"
 	"huru/routes/person"
 	"huru/routes/register"
 	"huru/routes/share"
 )
+
+// Handlers
+type RegisterHandler = register.Handler
+type LoginHandler = login.LoginHandler
+type NearbyHandler = nearby.NearbyHandler
+type ShareHandler = share.ShareHandler
+type PersonHandler = person.PersonHandler
+
+// Injection
+type NearbyInjection = nearby.NearbyInjection
+type ShareInjection = share.ShareInjection
+type PersonInjection = person.PeopleInjection
 
 // HuruRouteHandlers foobar
 type HuruRouteHandlers struct {
@@ -39,7 +49,7 @@ func (h HuruRouteHandlers) GetHandlers() HuruRouteHandlers {
 }
 
 // GetInjections money sauce
-func (h HuruInjection) GetInjections(p personm.Map, n nearbym.Map, s sharem.Map) HuruInjection {
+func (h HuruInjection) GetInjections(p models.PersonMap, n models.NearbyMap, s models.ShareMap) HuruInjection {
 	return HuruInjection{
 		person.PeopleInjection{People: p},
 		share.ShareInjection{Share: s},

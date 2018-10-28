@@ -4,9 +4,7 @@ import (
 	"encoding/json"
 	"fmt"
 	"huru/migrations"
-	"huru/models/nearby"
-	"huru/models/person"
-	"huru/models/share"
+	"huru/models"
 	"huru/routes"
 	"net/http"
 	"os"
@@ -73,15 +71,12 @@ func main() {
 		migrations.CreateHuruTables()
 	}
 
-	handlers := routes.HuruRouteHandlers{}.GetHandlers()
-	injections := routes.HuruInjection{}.GetInjections(
-		person.Init(),
-		nearby.Init(),
-		share.Init(),
-	)
-
-	// p := handlers.Person{}
-	// injection := routes.HuruInjection{}
+	// handlers := routes.HuruRouteHandlers{}.GetHandlers()
+	// injections := routes.HuruInjection{}.GetInjections(
+	// 	person.Init(),
+	// 	nearby.Init(),
+	// 	share.Init(),
+	// )
 
 	router := mux.NewRouter()
 	router.Use(loggingMiddleware)
@@ -89,12 +84,12 @@ func main() {
 
 	// register and login
 	{
-		handler := handlers.Login
+		handler := routes.LoginHandler{}
 		router.HandleFunc("/login", handler.Login).Methods("GET")
 	}
 
 	{
-		handler := handlers.Register
+		handler := routes.RegisterHandler{}
 		handler.Mount(router, struct{}{})
 	}
 
@@ -105,8 +100,8 @@ func main() {
 		// router.HandleFunc("/people/{id}", person.Create).Methods("POST")
 		// router.HandleFunc("/people/{id}", person.Delete).Methods("DELETE")
 
-		handler := handlers.Person
-		handler.Mount(router, injections.People)
+		handler := routes.PersonHandler{}
+		handler.Mount(router, routes.PersonInjection{People: models.PersonInit()})
 	}
 
 	{
@@ -115,8 +110,8 @@ func main() {
 		// router.HandleFunc("/nearby/{id}", nearby.GetOne).Methods("GET")
 		// router.HandleFunc("/nearby/{id}", nearby.Create).Methods("POST")
 		// router.HandleFunc("/nearby/{id}", nearby.Delete).Methods("DELETE")
-		handler := handlers.Nearby
-		handler.Mount(router, injections.Nearby)
+		handler := routes.NearbyHandler{}
+		handler.Mount(router, routes.NearbyInjection{Nearby: models.NearbyInit()})
 	}
 
 	{
@@ -125,8 +120,8 @@ func main() {
 		// router.HandleFunc("/share/{id}", share.GetOne).Methods("GET")
 		// router.HandleFunc("/share/{id}", share.Create).Methods("POST")
 		// router.HandleFunc("/share/{id}", share.Delete).Methods("DELETE")
-		handler := handlers.Share
-		handler.Mount(router, injections.Share)
+		handler := routes.ShareHandler{}
+		handler.Mount(router, routes.ShareInjection{Share: models.ShareInit()})
 	}
 
 	host := os.Getenv("huru_api_host")

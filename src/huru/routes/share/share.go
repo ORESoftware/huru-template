@@ -59,7 +59,7 @@ func (h ShareHandler) makeGetOne(v ShareInjection) http.HandlerFunc {
 // MakeCreate create a new item
 func (h ShareHandler) makeCreate(v ShareInjection) http.HandlerFunc {
 	return func(w http.ResponseWriter, r *http.Request) {
-		var n share.Share
+		var n share.Model
 		json.NewDecoder(r.Body).Decode(&n)
 		mtx.Lock()
 		v.Share[strconv.Itoa(n.ID)] = n
@@ -84,7 +84,7 @@ func (h ShareHandler) makeUpdateByID(v ShareInjection) http.HandlerFunc {
 	return func(w http.ResponseWriter, r *http.Request) {
 		params := mux.Vars(r)
 		decoder := json.NewDecoder(r.Body)
-		var t share.Share
+		var t share.Model
 		err := decoder.Decode(&t)
 		if err != nil {
 			panic(err)

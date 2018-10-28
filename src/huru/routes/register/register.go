@@ -60,7 +60,7 @@ func (h Handler) makeRegisterNewUser(v interface{}) func(http.ResponseWriter, *h
 			panic(err)
 		}
 
-		p := person.Person{Handle: t.Handle}
+		p := person.Model{Handle: t.Handle}
 
 		var id int
 		err = tx.QueryRow("INSERT INTO person (handle,email,firstname,lastname) VALUES ($1, $2, $3, $4) RETURNING ID", p.Handle, p.Email, p.Firstname, p.Lastname).Scan(&id)

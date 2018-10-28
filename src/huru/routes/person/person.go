@@ -62,7 +62,7 @@ func (h PersonHandler) makeGetOne(v PeopleInjection) http.HandlerFunc {
 // MakeCreate just what it says
 func (h PersonHandler) makeCreate(v PeopleInjection) http.HandlerFunc {
 	return func(w http.ResponseWriter, r *http.Request) {
-		var n person.Person
+		var n person.Model
 		json.NewDecoder(r.Body).Decode(&n)
 		mtx.Lock()
 		v.People[strconv.Itoa(n.ID)] = n
@@ -87,7 +87,7 @@ func (h PersonHandler) makeUpdateByID(v PeopleInjection) http.HandlerFunc {
 	return func(w http.ResponseWriter, r *http.Request) {
 		params := mux.Vars(r)
 		decoder := json.NewDecoder(r.Body)
-		var t person.Person
+		var t person.Model
 		err := decoder.Decode(&t)
 		if err != nil {
 			panic(err)

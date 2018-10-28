@@ -5,8 +5,8 @@ import (
 	"sync"
 )
 
-// Share The person Type (more like an object)
-type Share struct {
+// Model The share type
+type Model struct {
 	ID         int    `json:"id"`
 	Me         int    `json:"me"`
 	You        int    `json:"you"`
@@ -32,7 +32,7 @@ CREATE TABLE share_2 PARTITION OF share FOR VALUES IN (2);
 `
 
 // Map mappy
-type Map map[string]Share
+type Map map[string]Model
 
 var (
 	mtx    sync.Mutex
@@ -43,10 +43,10 @@ var (
 func Init() Map {
 	shares = make(Map)
 	mtx.Lock()
-	shares["1"] = Share{ID: 1, Me: 1, You: 2, FieldName: "sharePhone", FieldValue: false}
-	shares["2"] = Share{ID: 2, Me: 2, You: 1, FieldName: "shareEmail", FieldValue: true}
-	shares["3"] = Share{ID: 3, Me: 1, You: 2, FieldName: "sharePhone", FieldValue: true}
-	shares["4"] = Share{ID: 4, Me: 2, You: 1, FieldName: "shareEmail", FieldValue: false}
+	shares["1"] = Model{ID: 1, Me: 1, You: 2, FieldName: "sharePhone", FieldValue: false}
+	shares["2"] = Model{ID: 2, Me: 2, You: 1, FieldName: "shareEmail", FieldValue: true}
+	shares["3"] = Model{ID: 3, Me: 1, You: 2, FieldName: "sharePhone", FieldValue: true}
+	shares["4"] = Model{ID: 4, Me: 2, You: 1, FieldName: "shareEmail", FieldValue: false}
 	mtx.Unlock()
 	return shares
 }
