@@ -15,20 +15,19 @@ type Model struct {
 }
 
 const schema = `
+	DROP TABLE share;
 
-DROP TABLE share;
+	CREATE TABLE share (
+		id SERIAL,
+		me int,
+		you int,
+		fieldName text,
+		fieldValue boolean
+	) PARTITION BY LIST(me);
 
-CREATE TABLE share (
-	id SERIAL,
-    me int,
-    you int,
-	fieldName text,
-	fieldValue boolean
-) PARTITION BY LIST(me);
-
-CREATE TABLE share_0 PARTITION OF share FOR VALUES IN (0);
-CREATE TABLE share_1 PARTITION OF share FOR VALUES IN (1);
-CREATE TABLE share_2 PARTITION OF share FOR VALUES IN (2);
+	CREATE TABLE share_0 PARTITION OF share FOR VALUES IN (0);
+	CREATE TABLE share_1 PARTITION OF share FOR VALUES IN (1);
+	CREATE TABLE share_2 PARTITION OF share FOR VALUES IN (2);
 `
 
 // Map mappy

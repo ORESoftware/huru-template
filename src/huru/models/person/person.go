@@ -17,26 +17,26 @@ type Model struct {
 }
 
 const schema = `
-DROP TABLE person;
-DROP INDEX IF EXISTS person_handle;
-DROP INDEX IF EXISTS person_email;
+	DROP TABLE person;
+	DROP INDEX IF EXISTS person_handle;
+	DROP INDEX IF EXISTS person_email;
 
-CREATE TABLE person (
-	id SERIAL,
-	handle text,
-	firstname text,
-    lastname text,
-    email text,
-	work text,
-	image text,
-	personalEmail text,
-	businessEmail text,
-	facebook text,
-	instagram text
-);
+	CREATE TABLE person (
+		id SERIAL,
+		handle text,
+		firstname text,
+		lastname text,
+		email text,
+		work text,
+		image text,
+		personalEmail text,
+		businessEmail text,
+		facebook text,
+		instagram text
+	);
 
-CREATE UNIQUE INDEX person_handle ON person (handle);
-CREATE UNIQUE INDEX person_email ON person (email);
+	CREATE UNIQUE INDEX person_handle ON person (handle);
+	CREATE UNIQUE INDEX person_email ON person (email);
 `
 
 // Map muh person map duh

@@ -16,19 +16,19 @@ type Model struct {
 }
 
 var schema = `
-DROP TABLE nearby;
+	DROP TABLE nearby;
 
-CREATE TABLE nearby (
-	id SERIAL,
-    me integer,
-	you integer,
-	contactTime bigint
-) PARTITION BY LIST(me);
+	CREATE TABLE nearby (
+		id SERIAL,
+		me integer,
+		you integer,
+		contactTime bigint
+	) PARTITION BY LIST(me);
 
-CREATE TABLE nearby_0 PARTITION OF nearby FOR VALUES IN (0);
-CREATE TABLE nearby_1 PARTITION OF nearby FOR VALUES IN (1);
-CREATE TABLE nearby_2 PARTITION OF nearby FOR VALUES IN (2);
-CREATE TABLE nearby_3 PARTITION OF nearby FOR VALUES IN (3);
+	CREATE TABLE nearby_0 PARTITION OF nearby FOR VALUES IN (0);
+	CREATE TABLE nearby_1 PARTITION OF nearby FOR VALUES IN (1);
+	CREATE TABLE nearby_2 PARTITION OF nearby FOR VALUES IN (2);
+	CREATE TABLE nearby_3 PARTITION OF nearby FOR VALUES IN (3);
 `
 
 func makeTimestamp() int64 {
