@@ -11,6 +11,8 @@ func TestSetFields(t *testing.T) {
 
 	assert.Equal(t, true, true)
 
+	t.Log("dest.Stony", "stone")
+
 	src := struct {
 		Foo string
 		Bar string

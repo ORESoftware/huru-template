@@ -1,0 +1,6 @@
+=== RUN   TestSetFields
+--- PASS: TestSetFields (0.00s)
+    utils_test.go:14: dest.Stony stone
+    utils_test.go:31: dest.Pony pony
+PASS
+ok  	command-line-arguments	0.010s
