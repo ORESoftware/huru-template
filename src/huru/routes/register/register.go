@@ -31,10 +31,19 @@ func CreateHandler() struct{} {
 	return Handler{}
 }
 
+type RouteStruct struct {
+	Methods []string
+	Route   string
+}
+
 // Mount just what it says
 func (h Handler) Mount(router *mux.Router, v interface{}) {
-	methods := [...]string{"POST", "PUT"}
-	router.HandleFunc(h.makeRegisterNewUser("/api/v1/register", v)).Methods(methods...)
+
+	{
+		methods := []string{"POST"}
+		// z := RouteStruct{Methods: []string{"POST"}}
+		router.HandleFunc(h.makeRegisterNewUser("/api/v1/register", v)).Methods(methods...)
+	}
 
 }
 
