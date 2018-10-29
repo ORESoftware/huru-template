@@ -27,16 +27,16 @@ var (
 
 // Mount just what it says
 func (h Handler) Mount(router *mux.Router, v ShareInjection) {
-	router.HandleFunc("/share", h.makeGetMany(v)).Methods("GET")
-	router.HandleFunc("/share/{id}", h.makeGetOne(v)).Methods("GET")
-	router.HandleFunc("/share/{id}", h.makeCreate(v)).Methods("POST")
-	router.HandleFunc("/share/{id}", h.makeDelete(v)).Methods("DELETE")
-	router.HandleFunc("/share/{id}", h.makeUpdateByID(v)).Methods("PUT")
+	router.HandleFunc(h.makeGetMany("/api/v1/share", v)).Methods("GET")
+	router.HandleFunc("/api/v1/share/{id}", h.makeGetOne(v)).Methods("GET")
+	router.HandleFunc("/api/v1/share/{id}", h.makeCreate(v)).Methods("POST")
+	router.HandleFunc("/api/v1/share/{id}", h.makeDelete(v)).Methods("DELETE")
+	router.HandleFunc("/api/v1/share/{id}", h.makeUpdateByID(v)).Methods("PUT")
 }
 
 // MakeGetMany Display all from the people var
-func (h Handler) makeGetMany(v ShareInjection) http.HandlerFunc {
-	return func(w http.ResponseWriter, r *http.Request) {
+func (h Handler) makeGetMany(route string, v ShareInjection) (string, http.HandlerFunc) {
+	return route, func(w http.ResponseWriter, r *http.Request) {
 		json.NewEncoder(w).Encode(v.Share)
 	}
 }

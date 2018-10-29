@@ -33,12 +33,26 @@ func CreateHandler() struct{} {
 
 // Mount just what it says
 func (h Handler) Mount(router *mux.Router, v interface{}) {
-	router.HandleFunc("/register", h.makeRegisterNewUser(v)).Methods("POST")
+	methods := [...]string{"POST", "PUT"}
+	router.HandleFunc(h.makeRegisterNewUser("/api/v1/register", v)).Methods(methods...)
+
 }
 
 // MakeRegisterNewUser just what it says
-func (h Handler) makeRegisterNewUser(v interface{}) func(http.ResponseWriter, *http.Request) {
-	return func(w http.ResponseWriter, r *http.Request) {
+func (h Handler) makeRegisterNewUser(route string, v interface{}) (string, func(http.ResponseWriter, *http.Request)) {
+
+	type ResolutionValue struct {
+		v string
+	}
+
+	utils.WriteToDocs(utils.APIDoc{
+		Route: route,
+		ResolutionValue: ResolutionValue{
+			v: route,
+		},
+	})
+
+	return route, func(w http.ResponseWriter, r *http.Request) {
 
 		decoder := json.NewDecoder(r.Body)
 		var t struct {
@@ -80,6 +94,8 @@ func (h Handler) makeRegisterNewUser(v interface{}) func(http.ResponseWriter, *h
 		if err != nil {
 			panic(err)
 		}
+
+		json.NewEncoder(w).Encode(ResolutionValue{"foo"})
 
 		json.NewEncoder(w).Encode(struct {
 			ID string

@@ -16,3 +16,14 @@ https://www.postgresql.org/docs/9.5/static/dml-returning.html
 
 
 https://stackoverflow.com/questions/23350173/how-do-you-loop-through-the-fields-in-a-golang-struct-to-get-and-set-values-in-a/23351753
+
+
+I will quote one smart dude:
+
+& in front of variable name is used to retrieve the address of where this variable’s value is stored. That address is what the pointer is going to store.
+
+* in front of a type name, means that the declared variable will store an address of another variable of that type (not a value of that type).
+
+* in front of a variable of pointer type is used to retrieve a value stored at given address. In Go speak this is called dereferencing.
+
+source: http://piotrzurek.net/2013/09/20/pointers-in-go.html

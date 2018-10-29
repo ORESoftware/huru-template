@@ -26,11 +26,11 @@ var (
 
 // Mount just what it says
 func (h Handler) Mount(router *mux.Router, v NearbyInjection) {
-	router.HandleFunc("/nearby", h.makeGetMany(v)).Methods("GET")
-	router.HandleFunc("/nearby/{id}", h.makeGetOne(v)).Methods("GET")
-	router.HandleFunc("/nearby/{id}", h.makeCreate(v)).Methods("POST")
-	router.HandleFunc("/nearby/{id}", h.makeDelete(v)).Methods("DELETE")
-	router.HandleFunc("/nearby/{id}", h.makeUpdate(v)).Methods("PUT")
+	router.HandleFunc("/api/v1/nearby", h.makeGetMany(v)).Methods("GET")
+	router.HandleFunc("/api/v1/nearby/{id}", h.makeGetOne(v)).Methods("GET")
+	router.HandleFunc("/api/v1/nearby/{id}", h.makeCreate(v)).Methods("POST")
+	router.HandleFunc("/api/v1/nearby/{id}", h.makeDelete(v)).Methods("DELETE")
+	router.HandleFunc("/api/v1/nearby/{id}", h.makeUpdate(v)).Methods("PUT")
 }
 
 // GetMany Display all from the people var
@@ -42,6 +42,11 @@ func (h Handler) makeGetMany(v NearbyInjection) http.HandlerFunc {
 
 // GetOne Display a single data
 func (h Handler) makeGetOne(v NearbyInjection) http.HandlerFunc {
+
+	type APIDocs struct {
+		ResolutionValue struct{}
+	}
+
 	return func(w http.ResponseWriter, r *http.Request) {
 		params := mux.Vars(r)
 		mtx.Lock()
