@@ -13,7 +13,7 @@ import (
 	"github.com/gorilla/mux"
 )
 
-// ShareHandler just what it says
+// Handler - ShareHandler just what it says
 type Handler struct{}
 
 // ShareInjection - injects people
@@ -26,12 +26,13 @@ var (
 )
 
 // Mount just what it says
-func (h Handler) Mount(router *mux.Router, v ShareInjection) {
+func (h Handler) Mount(router *mux.Router, v ShareInjection) Handler {
 	router.HandleFunc(h.makeGetMany("/api/v1/share", v)).Methods("GET")
 	router.HandleFunc("/api/v1/share/{id}", h.makeGetOne(v)).Methods("GET")
 	router.HandleFunc("/api/v1/share/{id}", h.makeCreate(v)).Methods("POST")
 	router.HandleFunc("/api/v1/share/{id}", h.makeDelete(v)).Methods("DELETE")
 	router.HandleFunc("/api/v1/share/{id}", h.makeUpdateByID(v)).Methods("PUT")
+	return h
 }
 
 // MakeGetMany Display all from the people var

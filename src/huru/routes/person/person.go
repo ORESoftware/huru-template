@@ -25,12 +25,13 @@ var (
 )
 
 // Mount just what it says
-func (h Handler) Mount(router *mux.Router, v PeopleInjection) {
+func (h Handler) Mount(router *mux.Router, v PeopleInjection) Handler {
 	router.HandleFunc("/api/v1/people", h.makeGetMany(v)).Methods("GET")
 	router.HandleFunc("/api/v1/people/{id}", h.makeGetOne(v)).Methods("GET")
 	router.HandleFunc("/api/v1/people/{id}", h.makeCreate(v)).Methods("POST")
 	router.HandleFunc("/api/v1/people/{id}", h.makeDelete(v)).Methods("DELETE")
 	router.HandleFunc("/api/v1/people/{id}", h.makeUpdateByID(v)).Methods("PUT")
+	return h
 }
 
 // MakeGetMany Display all from the people var

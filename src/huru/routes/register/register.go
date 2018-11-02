@@ -37,7 +37,7 @@ type RouteStruct struct {
 }
 
 // Mount just what it says
-func (h Handler) Mount(router *mux.Router, v interface{}) {
+func (h Handler) Mount(router *mux.Router, v interface{}) Handler {
 
 	{
 		methods := []string{"POST"}
@@ -45,6 +45,7 @@ func (h Handler) Mount(router *mux.Router, v interface{}) {
 		router.HandleFunc(h.makeRegisterNewUser("/api/v1/register", v)).Methods(methods...)
 	}
 
+	return h
 }
 
 // MakeRegisterNewUser just what it says
